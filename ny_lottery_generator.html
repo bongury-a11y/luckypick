@@ -1,0 +1,2935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LuckyPick — NY Lottery Numbers</title>
+
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0a0e1a">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="LuckyPick">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
+    <!-- SEO / Social -->
+    <meta name="description" content="Generate lucky numbers for NY Lottery games. Unofficial app. For entertainment only.">
+    <meta property="og:title" content="LuckyPick — NY Lottery Number Generator">
+    <meta property="og:description" content="Generate lucky numbers for Powerball, Mega Millions, NY Lotto and more.">
+    <meta property="og:type" content="website">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%228%22%20fill%3D%22%230a0e1a%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2254%25%22%20font-size%3D%2220%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3E%F0%9F%8E%B1%3C%2Ftext%3E%3C%2Fsvg%3E" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg:       #0a0e1a;
+            --surface:  #111827;
+            --surface2: #1a2236;
+            --border:   rgba(255,255,255,0.07);
+            --gold:     #d4a843;
+            --gold-lite:#f0c96a;
+            --text:     #e8eaf0;
+            --muted:    #6b7a99;
+            --green:    #22c55e;
+            --red:      #e84c6a;
+            --radius:   14px;
+        }
+        body { font-family:'DM Sans',sans-serif; background-color:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; }
+        body::before {
+            content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+            background-image:
+                radial-gradient(1px 1px at 15% 25%,rgba(255,255,255,0.15) 0%,transparent 100%),
+                radial-gradient(1px 1px at 55% 10%,rgba(255,255,255,0.10) 0%,transparent 100%),
+                radial-gradient(1px 1px at 85% 65%,rgba(255,255,255,0.09) 0%,transparent 100%),
+                radial-gradient(700px 500px at 50% 0%,rgba(59,108,250,0.06) 0%,transparent 100%);
+        }
+        .screen { display:none; position:relative; z-index:1; min-height:100vh; }
+        .screen.active { display:block; animation:fadeUp 0.3s ease; }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+
+        /* ── HOME ── */
+        #home-screen { max-width:860px; margin:0 auto; padding:40px 16px 64px; }
+        .home-header { text-align:center; margin-bottom:48px; }
+        .home-badge { display:inline-block; font-size:11px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:var(--gold); border:1px solid rgba(212,168,67,0.35); padding:5px 16px; border-radius:99px; margin-bottom:18px; }
+        .home-header h1 { font-family:'Playfair Display',serif; font-size:clamp(2.2rem,8vw,3.8rem); font-weight:900; color:#fff; line-height:1.1; }
+        .home-header h1 span { color:var(--gold); }
+        .home-header p { margin-top:12px; color:var(--muted); font-size:15px; font-weight:300; }
+        .home-clock { margin-top:20px; display:inline-flex; align-items:center; gap:8px; background:var(--surface); border:1px solid var(--border); border-radius:99px; padding:7px 18px; font-size:13px; color:var(--muted); }
+        .clock-dot { width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 6px var(--green); flex-shrink:0; }
+        #live-time { color:var(--text); font-weight:500; }
+        .section-label { font-size:11px; font-weight:600; letter-spacing:2.5px; text-transform:uppercase; color:var(--muted); margin-bottom:16px; }
+        .game-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px; margin-bottom:40px; }
+        .game-tile { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:22px 20px; cursor:pointer; transition:all 0.22s ease; display:flex; flex-direction:column; gap:10px; -webkit-tap-highlight-color:transparent; position:relative; overflow:hidden; }
+        .game-tile::after { content:''; position:absolute; inset:0; border-radius:var(--radius); background:linear-gradient(135deg,rgba(212,168,67,0.06) 0%,transparent 60%); opacity:0; transition:opacity 0.22s ease; }
+        .game-tile:hover { border-color:rgba(212,168,67,0.35); transform:translateY(-3px); box-shadow:0 12px 32px rgba(0,0,0,0.3); }
+        .game-tile:hover::after { opacity:1; }
+        .game-tile:active { transform:translateY(-1px); }
+        .tile-top { display:flex; align-items:center; justify-content:space-between; }
+        .tile-icon { font-size:26px; }
+        .tile-arrow { color:var(--muted); font-size:18px; transition:transform 0.22s ease,color 0.22s ease; }
+        .game-tile:hover .tile-arrow { transform:translateX(4px); color:var(--gold); }
+        .tile-name { font-family:'Playfair Display',serif; font-size:1.15rem; font-weight:700; color:#fff; }
+        .tile-rule { font-size:12px; color:var(--muted); line-height:1.5; }
+        .tile-draw { margin-top:4px; font-size:11px; font-weight:600; color:var(--gold); }
+        .home-footer { text-align:center; color:var(--muted); font-size:12px; line-height:1.9; }
+        .home-footer a { color:var(--gold); text-decoration:none; }
+
+        /* ── DISCLAIMER / LEGAL FOOTER ── */
+        .legal-footer {
+            margin-top: 32px;
+            padding: 20px 0 0;
+            border-top: 1px solid var(--border);
+        }
+        .legal-block {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px 18px;
+            margin-bottom: 12px;
+            text-align: left;
+        }
+        .legal-block-title {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 7px;
+        }
+        .legal-block p {
+            font-size: 11.5px;
+            color: var(--muted);
+            line-height: 1.7;
+        }
+        .legal-block a {
+            color: var(--gold);
+            text-decoration: none;
+        }
+        .legal-copy {
+            text-align: center;
+            font-size: 11px;
+            color: #3a445a;
+            margin-top: 10px;
+            padding-bottom: 8px;
+        }
+
+        /* ── GAME SCREEN ── */
+        #game-screen { max-width:860px; margin:0 auto; padding:0 16px 64px; }
+        .game-topbar { display:flex; align-items:center; justify-content:space-between; padding:20px 0; gap:12px; flex-wrap:wrap; }
+        .back-btn { display:inline-flex; align-items:center; gap:7px; background:var(--surface); border:1px solid var(--border); border-radius:99px; padding:8px 16px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; color:var(--muted); cursor:pointer; transition:all 0.2s ease; -webkit-tap-highlight-color:transparent; }
+        .back-btn:hover { border-color:rgba(212,168,67,0.35); color:var(--gold-lite); }
+        .back-btn svg { width:14px; height:14px; }
+        .draw-badge { display:inline-flex; align-items:center; gap:7px; background:var(--surface); border:1px solid var(--border); border-radius:99px; padding:7px 14px; font-size:12px; color:var(--muted); }
+        .draw-dot { width:6px; height:6px; border-radius:50%; background:var(--gold); flex-shrink:0; }
+        .draw-badge strong { color:var(--gold); font-weight:600; }
+
+        /* tabs */
+        .tab-nav-wrap { margin-bottom:8px; }
+        .tab-scroll { display:flex; gap:6px; overflow-x:auto; padding:4px 2px 10px; scrollbar-width:none; -ms-overflow-style:none; }
+        .tab-scroll::-webkit-scrollbar { display:none; }
+        .tab-btn { flex-shrink:0; padding:9px 18px; border-radius:99px; border:1px solid var(--border); background:var(--surface); color:var(--muted); font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; cursor:pointer; transition:all 0.22s ease; white-space:nowrap; -webkit-tap-highlight-color:transparent; }
+        .tab-btn:hover { border-color:rgba(212,168,67,0.4); color:var(--gold-lite); }
+        .tab-btn.active { background:var(--gold); border-color:var(--gold); color:#0a0e1a; font-weight:700; box-shadow:0 0 20px rgba(212,168,67,0.3); }
+
+        /* game card */
+        .game-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; display:none; }
+        .game-card.active { display:block; animation:fadeUp 0.28s ease; }
+        .card-header { padding:22px 26px 18px; border-bottom:1px solid var(--border); display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+        .game-icon { font-size:26px; margin-bottom:6px; }
+        .card-header h2 { font-family:'Playfair Display',serif; font-size:clamp(1.4rem,4vw,1.85rem); font-weight:700; color:#fff; line-height:1.2; }
+        .card-header-sub { margin-top:4px; color:var(--muted); font-size:13px; }
+        .card-draw-info { flex-shrink:0; text-align:right; }
+        .card-draw-label { font-size:10px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin-bottom:4px; }
+        .card-draw-days { font-size:13px; font-weight:600; color:var(--gold); }
+        .card-draw-time { font-size:12px; color:var(--muted); margin-top:2px; }
+        .card-draw-next { font-size:11px; color:#6b7a99; margin-top:3px; }
+
+        /* ── WINNING NUMBERS SECTION ── */
+        .winning-section { margin:0 26px 0; padding:16px 0 0; border-top:1px solid var(--border); }
+        .winning-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:8px; }
+        .winning-title { font-size:11px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--muted); display:flex; align-items:center; gap:7px; }
+        .winning-dot { width:6px; height:6px; border-radius:50%; background:var(--green); box-shadow:0 0 5px var(--green); }
+        .winning-date { font-size:11px; color:var(--muted); }
+        .winning-balls { display:flex; flex-wrap:wrap; gap:7px; align-items:center; }
+        .winning-loading { font-size:12px; color:var(--muted); padding:8px 0; display:flex; align-items:center; gap:8px; }
+        .winning-error { font-size:12px; color:rgba(232,76,106,0.8); padding:8px 0; }
+        .spin { display:inline-block; width:12px; height:12px; border:2px solid rgba(212,168,67,0.3); border-top-color:var(--gold); border-radius:50%; animation:spin 0.7s linear infinite; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+
+        /* generate button */
+        .generate-wrap { padding:18px 26px 0; }
+        .generate-btn { width:100%; padding:15px 20px; border-radius:10px; border:none; background:linear-gradient(135deg,var(--gold) 0%,#c49020 100%); color:#0a0e1a; font-family:'DM Sans',sans-serif; font-size:15px; font-weight:700; cursor:pointer; transition:all 0.2s ease; display:flex; align-items:center; justify-content:center; gap:8px; -webkit-tap-highlight-color:transparent; }
+        .generate-btn:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(212,168,67,0.35); }
+        .generate-btn:active { transform:translateY(0); }
+        .generate-btn svg { width:18px; height:18px; transition:transform 0.3s ease; }
+        .generate-btn:hover svg { transform:rotate(180deg); }
+
+        /* results */
+        .results-area { padding:18px 26px 26px; display:flex; flex-direction:column; gap:10px; }
+        .empty-state { text-align:center; padding:36px 20px; color:var(--muted); font-size:14px; }
+        .empty-state .empty-icon { font-size:34px; margin-bottom:10px; }
+        .result-set { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:13px 15px; animation:setIn 0.22s ease both; }
+        @keyframes setIn { from{opacity:0;transform:scale(0.97)} to{opacity:1;transform:scale(1)} }
+        .set-label { font-size:11px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:10px; }
+        .balls-row { display:flex; flex-wrap:wrap; gap:7px; align-items:center; }
+
+        /* balls */
+        .ball { min-width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:15px; flex:1; max-width:56px; transition:transform 0.15s ease; cursor:default; }
+        .ball:hover { transform:scale(1.1); }
+        .ball-main        { background:linear-gradient(145deg,#1e3a6e,#2a4f9e); color:#a8c4ff; border:1px solid rgba(100,150,255,0.22); }
+        .ball-bonus       { background:linear-gradient(145deg,#7c2d12,#c2440f); color:#ffd4a8; border:1px solid rgba(249,115,22,0.28); }
+        .ball-bonus-gold  { background:linear-gradient(145deg,#78350f,#b45309); color:#fde68a; border:1px solid rgba(212,168,67,0.28); }
+        .ball-bonus-green { background:linear-gradient(145deg,#14532d,#15803d); color:#86efac; border:1px solid rgba(34,197,94,0.28); }
+        .ball-zero        { background:linear-gradient(145deg,#1f2937,#374151); color:#9ca3af; border:1px solid rgba(255,255,255,0.09); }
+        /* winning balls: slightly smaller, outlined style */
+        .ball-w-main        { background:rgba(30,58,110,0.5); color:#a8c4ff; border:1px solid rgba(100,150,255,0.35); }
+        .ball-w-bonus       { background:rgba(124,45,18,0.5); color:#ffd4a8; border:1px solid rgba(249,115,22,0.4); }
+        .ball-w-bonus-gold  { background:rgba(120,53,15,0.5); color:#fde68a; border:1px solid rgba(212,168,67,0.4); }
+        .ball-w-bonus-green { background:rgba(20,83,45,0.5); color:#86efac; border:1px solid rgba(34,197,94,0.4); }
+        .ball-w-zero        { background:rgba(31,41,55,0.5); color:#9ca3af; border:1px solid rgba(255,255,255,0.12); }
+        .ball-sep { color:var(--muted); font-size:16px; padding:0 2px; flex:none; }
+        /* winning balls fixed size */
+        .ball-w { min-width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; }
+
+        /* ── HOT NUMBERS ── */
+        .hot-section {
+            margin: 0 26px;
+            padding: 14px 0 0;
+            border-top: 1px solid var(--border);
+        }
+        .hot-header {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin-bottom: 10px;
+        }
+        .hot-title {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+        .hot-sub {
+            font-size: 11px;
+            color: var(--muted);
+            opacity: 0.6;
+            margin-left: auto;
+        }
+        .hot-balls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            align-items: flex-end;
+        }
+        /* hot ball: slightly warm tint to look "hot" */
+        .ball-hot {
+            position: relative;
+            min-width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 13px;
+            flex-shrink: 0;
+            cursor: default;
+            background: linear-gradient(145deg, #451a03, #92400e);
+            color: #fde68a;
+            border: 1px solid rgba(251,191,36,0.3);
+            transition: transform 0.15s ease;
+        }
+        .ball-hot:hover { transform: scale(1.1); }
+        /* rank badge on top-right */
+        .ball-hot-rank {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--gold);
+            color: #0a0e1a;
+            font-size: 8px;
+            font-weight: 800;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        /* digit variant for Win4 / Numbers */
+        .ball-hot-zero {
+            background: linear-gradient(145deg, #1c1917, #44403c);
+            color: #d6d3d1;
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+
+        /* ── COLD NUMBERS ── */
+        .cold-section {
+            margin: 0 26px;
+            padding: 14px 0 16px;
+        }
+        .cold-header {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin-bottom: 10px;
+        }
+        .cold-title {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+        .cold-sub {
+            font-size: 11px;
+            color: var(--muted);
+            opacity: 0.6;
+            margin-left: auto;
+        }
+        .cold-balls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            align-items: flex-end;
+        }
+        /* cold ball: icy blue tint */
+        .ball-cold {
+            position: relative;
+            min-width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 13px;
+            flex-shrink: 0;
+            cursor: default;
+            background: linear-gradient(145deg, #0c1a3a, #1e3a6e);
+            color: #93c5fd;
+            border: 1px solid rgba(147,197,253,0.25);
+            transition: transform 0.15s ease;
+        }
+        .ball-cold:hover { transform: scale(1.1); }
+        /* rank badge */
+        .ball-cold-rank {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #3b82f6;
+            color: #fff;
+            font-size: 8px;
+            font-weight: 800;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        /* digit variant for Win4 / Numbers */
+        .ball-cold-zero {
+            background: linear-gradient(145deg, #0f172a, #1e293b);
+            color: #94a3b8;
+            border: 1px solid rgba(148,163,184,0.2);
+        }
+
+        @media (max-width:520px) {
+            .cold-section { margin: 0 14px; }
+            .ball-cold { min-width: 32px; height: 32px; font-size: 12px; }
+        }
+
+        /* ── PWA: offline banner ── */
+        .offline-banner {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: #7c2d12;
+            color: #ffd4a8;
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
+            padding: 8px 16px;
+            z-index: 10000;
+        }
+        .offline-banner.visible { display: block; }
+
+        /* ── PWA: install prompt ── */
+        .install-banner {
+            display: none;
+            margin-bottom: 16px;
+            background: var(--surface);
+            border: 1px solid rgba(212,168,67,0.3);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+            align-items: center;
+            gap: 12px;
+        }
+        .install-banner.visible { display: flex; }
+        .install-banner-text { flex: 1; }
+        .install-banner-title { font-size:13px; font-weight:700; color:var(--text); }
+        .install-banner-sub   { font-size:11px; color:var(--muted); margin-top:2px; }
+        .install-btn {
+            background: var(--gold);
+            color: #0a0e1a;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .install-dismiss {
+            background: transparent;
+            border: none;
+            color: var(--muted);
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0 4px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        @media (max-width:520px) {
+            .hot-section { margin: 0 14px; }
+            .ball-hot { min-width: 32px; height: 32px; font-size: 12px; }
+        }
+
+        /* ── MY NUMBERS SCREEN ── */
+        #saved-screen { max-width:860px; margin:0 auto; padding:0 16px 64px; }
+
+        .saved-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 0;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .saved-topbar-left { display:flex; align-items:center; gap:10px; }
+        .saved-count-badge {
+            background: var(--gold);
+            color: #0a0e1a;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 99px;
+        }
+        .clear-all-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: transparent;
+            border: 1px solid rgba(232,76,106,0.3);
+            border-radius: 99px;
+            padding: 7px 14px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 12px;
+            font-weight: 500;
+            color: #e84c6a;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .clear-all-btn:hover { background: rgba(232,76,106,0.1); border-color: rgba(232,76,106,0.6); }
+
+        /* save button on each result set */
+        .save-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 5px 11px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+            margin-top: 10px;
+        }
+        .save-btn:hover { border-color: var(--gold); color: var(--gold); }
+        .save-btn.saved {
+            border-color: rgba(34,197,94,0.4);
+            color: #22c55e;
+            pointer-events: none;
+        }
+
+        /* share button — sits next to save button */
+        .share-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 5px 11px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+            margin-top: 10px;
+            margin-left: 6px;
+        }
+        .share-btn:hover { border-color: rgba(59,108,250,0.5); color: #7ba4ff; }
+        .share-btn.copied {
+            border-color: rgba(34,197,94,0.4);
+            color: #22c55e;
+        }
+
+        /* toast notification */
+        .toast {
+            position: fixed;
+            bottom: 28px;
+            left: 50%;
+            transform: translateX(-50%) translateY(0);
+            background: var(--surface2);
+            border: 1px solid rgba(212,168,67,0.3);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            padding: 11px 22px;
+            border-radius: 99px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            z-index: 9999;
+            white-space: nowrap;
+            animation: toastIn 0.25s ease;
+            pointer-events: none;
+        }
+        @keyframes toastIn {
+            from { opacity:0; transform:translateX(-50%) translateY(12px); }
+            to   { opacity:1; transform:translateX(-50%) translateY(0); }
+        }
+
+        /* My Numbers button on home */
+        .my-numbers-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.22s ease;
+            -webkit-tap-highlight-color: transparent;
+            width: 100%;
+        }
+        .my-numbers-btn:hover { border-color: rgba(212,168,67,0.35); }
+        .my-numbers-btn-left { display:flex; align-items:center; gap:12px; }
+        .my-numbers-btn-icon { font-size:22px; }
+        .my-numbers-btn-label { font-weight:600; color:var(--text); font-size:14px; }
+        .my-numbers-btn-sub { font-size:12px; color:var(--muted); margin-top:2px; }
+        .my-numbers-btn-right { display:flex; align-items:center; gap:8px; color:var(--muted); }
+
+        /* saved entry card */
+        .saved-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin-bottom: 12px;
+            animation: fadeUp 0.25s ease;
+        }
+        .saved-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 13px 16px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .saved-card-meta { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+        .saved-game-tag {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--gold);
+            background: var(--gold-dim, rgba(212,168,67,0.1));
+            border: 1px solid rgba(212,168,67,0.2);
+            padding: 3px 10px;
+            border-radius: 99px;
+        }
+        .saved-date { font-size: 11px; color: var(--muted); }
+        .delete-btn {
+            background: transparent;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 16px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: color 0.15s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .delete-btn:hover { color: #e84c6a; }
+
+        .saved-card-body { padding: 14px 16px; }
+        .saved-balls-row { display:flex; flex-wrap:wrap; gap:7px; align-items:center; margin-bottom:10px; }
+
+        /* match result */
+        .match-result {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 5px 12px;
+            border-radius: 99px;
+            margin-top: 2px;
+        }
+        .match-0  { background:rgba(107,122,153,0.1); color:var(--muted); border:1px solid var(--border); }
+        .match-1,
+        .match-2  { background:rgba(59,108,250,0.1); color:#7ba4ff; border:1px solid rgba(59,108,250,0.2); }
+        .match-3  { background:rgba(212,168,67,0.1); color:var(--gold); border:1px solid rgba(212,168,67,0.2); }
+        .match-4,
+        .match-5,
+        .match-6  { background:rgba(34,197,94,0.1); color:#22c55e; border:1px solid rgba(34,197,94,0.25); }
+        .match-loading { font-size:11px; color:var(--muted); }
+
+        /* ball highlight for matched numbers */
+        .ball-matched { box-shadow: 0 0 0 2px #22c55e; }
+
+        /* empty saved state */
+        .saved-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--muted);
+        }
+        .saved-empty-icon { font-size: 48px; margin-bottom: 14px; }
+        .saved-empty h3 { font-family:'Playfair Display',serif; color:var(--text); margin-bottom:8px; font-size:1.2rem; }
+        .saved-empty p { font-size:13px; line-height:1.7; }
+
+        /* [Phase 1.4] Custom confirm modal (replaces window.confirm) */
+        .confirm-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 9998;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .confirm-overlay.visible { display: flex; }
+        .confirm-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px 24px 22px;
+            max-width: 320px;
+            width: 100%;
+            text-align: center;
+            animation: fadeUp 0.2s ease;
+        }
+        .confirm-icon { font-size: 32px; margin-bottom: 12px; }
+        .confirm-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+        .confirm-msg {
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .confirm-btns {
+            display: flex;
+            gap: 10px;
+        }
+        .confirm-cancel {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: transparent;
+            color: var(--muted);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            transition: all 0.2s;
+        }
+        .confirm-cancel:hover { border-color: rgba(255,255,255,0.2); color: var(--text); }
+        .confirm-ok {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: #e84c6a;
+            color: #fff;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            transition: all 0.2s;
+        }
+        .confirm-ok:hover { background: #f05a76; }
+
+        @media (max-width:520px) {
+            #saved-screen { padding:0 12px 48px; }
+            #home-screen { padding:28px 12px 48px; }
+            #game-screen { padding:0 12px 48px; }
+            .card-header { padding:16px 14px 14px; }
+            .generate-wrap { padding:14px 14px 0; }
+            .results-area { padding:14px 14px 20px; }
+            .winning-section { margin:0 14px 0; }
+            .card-draw-info { display:none; }
+            .ball { min-width:36px; height:36px; font-size:13px; max-width:50px; }
+            .ball-w { min-width:32px; height:32px; font-size:12px; }
+            .game-grid { grid-template-columns:1fr 1fr; gap:10px; }
+            .tile-rule { display:none; }
+            .game-tile { padding:16px 14px; gap:7px; }
+        }
+        @media (max-width:340px) { .game-grid { grid-template-columns:1fr; } }
+
+        /* ══ PHASE 2: AGE GATE ══ */
+        .age-gate-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 99999;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .age-gate-overlay.visible { display: flex; }
+        .age-gate-box {
+            background: var(--surface);
+            border: 1px solid rgba(212,168,67,0.25);
+            border-radius: 20px;
+            padding: 40px 28px 32px;
+            max-width: 360px;
+            width: 100%;
+            text-align: center;
+        }
+        .age-gate-icon { font-size: 48px; margin-bottom: 16px; }
+        .age-gate-badge {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--muted);
+            border: 1px solid var(--border);
+            padding: 4px 14px;
+            border-radius: 99px;
+            margin-bottom: 16px;
+        }
+        .age-gate-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: #fff;
+            margin-bottom: 10px;
+            line-height: 1.2;
+        }
+        .age-gate-title span { color: var(--gold); }
+        .age-gate-desc {
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.7;
+            margin-bottom: 28px;
+        }
+        .age-gate-btns {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .age-gate-yes {
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--gold) 0%, #c49020 100%);
+            color: #0a0e1a;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            transition: all 0.2s;
+        }
+        .age-gate-yes:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(212,168,67,0.3); }
+        .age-gate-no {
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: transparent;
+            color: var(--muted);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            transition: all 0.2s;
+        }
+        .age-gate-no:hover { border-color: rgba(255,255,255,0.15); color: var(--text); }
+        .age-gate-legal {
+            font-size: 11px;
+            color: #3a445a;
+            line-height: 1.7;
+        }
+        .age-gate-legal a {
+            color: var(--muted);
+            text-decoration: underline;
+        }
+        /* Age gate blocked screen */
+        .age-blocked {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 99999;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            text-align: center;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .age-blocked.visible { display: flex; }
+        .age-blocked-icon { font-size: 48px; }
+        .age-blocked h2 {
+            font-family: 'Playfair Display', serif;
+            color: var(--text);
+            font-size: 1.3rem;
+        }
+        .age-blocked p { font-size: 13px; color: var(--muted); line-height: 1.7; max-width: 280px; }
+
+        /* ══ PHASE 2: PRIVACY / TERMS SCREENS ══ */
+        #privacy-screen,
+        #terms-screen {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 0 16px 64px;
+        }
+        .legal-topbar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 20px 0;
+        }
+        .legal-screen-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        .legal-doc {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px 24px;
+        }
+        .legal-doc h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+        .legal-doc .legal-updated {
+            font-size: 11px;
+            color: var(--muted);
+            margin-bottom: 24px;
+            display: block;
+        }
+        .legal-doc h3 {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin: 22px 0 8px;
+        }
+        .legal-doc p {
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.8;
+            margin-bottom: 8px;
+        }
+        .legal-doc ul {
+            margin: 6px 0 10px 18px;
+        }
+        .legal-doc ul li {
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.8;
+        }
+        .legal-doc .highlight-box {
+            background: var(--surface2);
+            border: 1px solid rgba(212,168,67,0.2);
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin: 16px 0;
+        }
+        .legal-doc .highlight-box p {
+            margin: 0;
+            color: var(--text);
+            font-size: 13px;
+        }
+        .legal-doc a { color: var(--gold); text-decoration: none; }
+        .legal-doc .crisis-box {
+            background: rgba(34,197,94,0.07);
+            border: 1px solid rgba(34,197,94,0.2);
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin: 16px 0;
+        }
+        .legal-doc .crisis-box p {
+            margin: 0;
+            color: #86efac;
+            font-size: 13px;
+        }
+
+        @media (max-width: 520px) {
+            .legal-doc { padding: 20px 16px; }
+            #privacy-screen, #terms-screen { padding: 0 12px 48px; }
+        }
+
+        /* ══ PHASE 3: iOS 홈화면 추가 안내 카드 ══ */
+        .ios-install-card {
+            display: none;
+            background: var(--surface);
+            border: 1px solid rgba(212,168,67,0.3);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+            margin-bottom: 16px;
+            position: relative;
+        }
+        .ios-install-card.visible { display: block; }
+        .ios-install-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+        .ios-install-steps {
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.8;
+        }
+        .ios-install-steps strong { color: var(--text); }
+        .ios-install-dismiss {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            background: transparent;
+            border: none;
+            color: var(--muted);
+            font-size: 16px;
+            cursor: pointer;
+            padding: 2px 6px;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .ios-install-dismiss:hover { color: var(--text); }
+    </style>
+</head>
+<body>
+
+<!-- ══ PHASE 2: AGE GATE OVERLAY ══ -->
+<div class="age-gate-overlay" id="age-gate-overlay">
+    <div class="age-gate-box">
+        <div class="age-gate-icon">🎱</div>
+        <div class="age-gate-badge">⚠️ Age Verification Required</div>
+        <div class="age-gate-title">Are you <span>18</span> or older?</div>
+        <div class="age-gate-desc">
+            LuckyPick is intended for adults 18 years of age or older.<br>
+            This app is for entertainment purposes only and does not involve real money.
+        </div>
+        <div class="age-gate-btns">
+            <button class="age-gate-yes" id="age-gate-yes-btn" aria-label="Confirm I am 18 or older">
+                ✅ Yes, I am 18 or older
+            </button>
+            <button class="age-gate-no" id="age-gate-no-btn" aria-label="I am under 18, exit">
+                No, I am under 18
+            </button>
+        </div>
+        <div class="age-gate-legal">
+            By continuing, you agree to our
+            <a href="#" onclick="openTerms(); return false;">Terms of Service</a>
+            and
+            <a href="#" onclick="openPrivacy(); return false;">Privacy Policy</a>.
+        </div>
+    </div>
+</div>
+
+<!-- ══ PHASE 2: AGE BLOCKED ══ -->
+<div class="age-blocked" id="age-blocked">
+    <div class="age-blocked-icon">🔞</div>
+    <h2>Access Restricted</h2>
+    <p>This app is for adults 18 years of age or older.<br>Please visit <a href="https://nylottery.ny.gov" style="color:var(--gold)">nylottery.ny.gov</a> for official lottery information.</p>
+</div>
+
+
+<!-- PWA: offline notice -->
+<div class="offline-banner" id="offline-banner">
+    📡 You're offline — number generation works, live data unavailable
+</div>
+
+<!-- [Phase 1.3] Custom confirm modal (replaces window.confirm) -->
+<div class="confirm-overlay" id="confirm-overlay">
+    <div class="confirm-box">
+        <div class="confirm-icon">🗑️</div>
+        <div class="confirm-title">Clear All Numbers?</div>
+        <div class="confirm-msg">This will delete all your saved picks.<br>This action cannot be undone.</div>
+        <div class="confirm-btns">
+            <button class="confirm-cancel" id="confirm-cancel-btn">Cancel</button>
+            <button class="confirm-ok" id="confirm-ok-btn">Delete All</button>
+        </div>
+    </div>
+</div>
+
+<!-- ══ HOME ══ -->
+<div id="home-screen" class="screen active" role="main" aria-label="LuckyPick Home">
+    <div class="home-header">
+        <div class="home-badge">⚠️ Unofficial App — Not affiliated with NY Lottery</div>
+        <h1>Lucky <span>Numbers</span></h1>
+        <p>Number generator for NY Lottery games &nbsp;·&nbsp; For entertainment only</p>
+        <div class="home-clock">
+            <div class="clock-dot"></div>
+            <span id="live-time">--:--:-- --</span>
+            <span id="live-date" style="opacity:0.55;margin-left:6px"></span>
+        </div>
+    </div>
+    <div class="section-label">Select a Game</div>
+
+    <!-- PWA install prompt (shown only when installable) -->
+    <div class="install-banner" id="install-banner">
+        <div class="install-banner-text">
+            <div class="install-banner-title">📲 Add to Home Screen</div>
+            <div class="install-banner-sub">Install LuckyPick for faster access</div>
+        </div>
+        <button class="install-btn" id="install-btn" aria-label="Install LuckyPick app">Install</button>
+        <button class="install-dismiss" id="install-dismiss" title="Dismiss">✕</button>
+    </div>
+
+    <!-- Phase 3: iOS 홈화면 추가 안내 카드 (Safari only) -->
+    <div class="ios-install-card" id="ios-install-card">
+        <button class="ios-install-dismiss" id="ios-install-dismiss" aria-label="Dismiss iOS install guide">✕</button>
+        <div class="ios-install-title">📲 Add to Home Screen</div>
+        <div class="ios-install-steps">
+            1. Tap the <strong>Share</strong> button &nbsp;⬆️&nbsp; at the bottom of Safari<br>
+            2. Scroll down and tap <strong>"Add to Home Screen"</strong><br>
+            3. Tap <strong>Add</strong> — LuckyPick will appear on your home screen!
+        </div>
+    </div>
+
+
+    <!-- My Numbers shortcut button -->
+    <button class="my-numbers-btn" onclick="openSaved()" aria-label="View my saved numbers">
+        <div class="my-numbers-btn-left">
+            <span class="my-numbers-btn-icon">⭐</span>
+            <div>
+                <div class="my-numbers-btn-label">My Saved Numbers</div>
+                <div class="my-numbers-btn-sub">View & check your picks against latest results</div>
+            </div>
+        </div>
+        <div class="my-numbers-btn-right">
+            <span id="home-saved-count" class="saved-count-badge" style="display:none">0</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+    </button>
+
+    <div class="section-label" style="margin-top:4px;">Games</div>
+    <div class="game-grid">
+        <div class="game-tile" onclick="openGame('powerball')">
+            <div class="tile-top"><span class="tile-icon">⚡</span><span class="tile-arrow">›</span></div>
+            <div class="tile-name">Powerball</div>
+            <div class="tile-rule">5/69 + Powerball 1/26</div>
+            <div class="tile-draw" id="home-powerball-next"></div>
+        </div>
+        <div class="game-tile" onclick="openGame('mega')">
+            <div class="tile-top"><span class="tile-icon">✨</span><span class="tile-arrow">›</span></div>
+            <div class="tile-name">Mega Millions</div>
+            <div class="tile-rule">5/70 + Mega Ball 1/25</div>
+            <div class="tile-draw" id="home-mega-next"></div>
+        </div>
+        <div class="game-tile" onclick="openGame('lotto')">
+            <div class="tile-top"><span class="tile-icon">🎱</span><span class="tile-arrow">›</span></div>
+            <div class="tile-name">NY Lotto</div>
+            <div class="tile-rule">6/59 + Bonus Ball</div>
+            <div class="tile-draw" id="home-lotto-next"></div>
+        </div>
+        <div class="game-tile" onclick="openGame('millionaire')">
+            <div class="tile-top"><span class="tile-icon">💎</span><span class="tile-arrow">›</span></div>
+            <div class="tile-name">Millionaire for Life</div>
+            <div class="tile-rule">5/58 + Millionaire Ball 1/5</div>
+            <div class="tile-draw" id="home-millionaire-next"></div>
+        </div>
+        <div class="game-tile" onclick="openGame('quickdraw')">
+            <div class="tile-top"><span class="tile-icon">🎰</span><span class="tile-arrow">›</span></div>
+            <div class="tile-name">Quick Draw</div>
+            <div class="tile-rule">10 numbers from 1–80</div>
+            <div class="tile-draw" id="home-quickdraw-next"></div>
+        </div>
+        <div class="game-tile" onclick="openGame('take5')">
+            <div class="tile-top"><span class="tile-icon">🎯</span><span class="tile-arrow">›</span></div>
+            <div class="tile-name">Take 5</div>
+            <div class="tile-rule">5/39 · No bonus ball</div>
+            <div class="tile-draw" id="home-take5-next"></div>
+        </div>
+        <div class="game-tile" onclick="openGame('pick10')">
+            <div class="tile-top"><span class="tile-icon">🔟</span><span class="tile-arrow">›</span></div>
+            <div class="tile-name">Pick 10</div>
+            <div class="tile-rule">10 numbers from 1–80</div>
+            <div class="tile-draw" id="home-pick10-next"></div>
+        </div>
+        <div class="game-tile" onclick="openGame('win4')">
+            <div class="tile-top"><span class="tile-icon">4️⃣</span><span class="tile-arrow">›</span></div>
+            <div class="tile-name">Win 4</div>
+            <div class="tile-rule">4 digits from 0–9</div>
+            <div class="tile-draw" id="home-win4-next"></div>
+        </div>
+        <div class="game-tile" onclick="openGame('numbers')">
+            <div class="tile-top"><span class="tile-icon">🔢</span><span class="tile-arrow">›</span></div>
+            <div class="tile-name">Numbers</div>
+            <div class="tile-rule">3 digits from 0–9</div>
+            <div class="tile-draw" id="home-numbers-next"></div>
+        </div>
+    </div>
+
+    <div class="legal-footer">
+        <div class="legal-block">
+            <div class="legal-block-title">⚠️ Disclaimer</div>
+            <p>This app is <strong style="color:var(--text)">not affiliated with, endorsed by, or connected to</strong> the New York State Gaming Commission or NY Lottery. Independent unofficial application. Generated numbers do not guarantee any winnings. Must be 18+.</p>
+        </div>
+        <div class="legal-block">
+            <div class="legal-block-title">📊 Data Sources</div>
+            <p>Winning numbers sourced from <a href="https://data.ny.gov" target="_blank" rel="noopener">New York State Open Data (data.ny.gov)</a> under NY Open Data Terms of Use. Official results at <a href="https://nylottery.ny.gov" target="_blank" rel="noopener">nylottery.ny.gov</a>.</p>
+        </div>
+        <div class="legal-copy">&copy; 2026 LuckyPick &nbsp;·&nbsp; Unofficial &nbsp;·&nbsp; For entertainment only
+            &nbsp;·&nbsp;
+            <a href="#" onclick="openPrivacy();return false;" style="color:var(--muted);text-decoration:underline;">Privacy Policy</a>
+            &nbsp;·&nbsp;
+            <a href="#" onclick="openTerms();return false;" style="color:var(--muted);text-decoration:underline;">Terms of Service</a>
+        </div>
+    </div>
+</div>
+
+<!-- ══ GAME SCREEN ══ -->
+<div id="game-screen" class="screen" role="main" aria-label="Game Screen">
+    <div class="game-topbar">
+        <button class="back-btn" onclick="goHome()" aria-label="Go back to all games">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            All Games
+        </button>
+        <div class="draw-badge">
+            <div class="draw-dot"></div>
+            <span id="topbar-draw-text">—</span>
+        </div>
+    </div>
+
+    <div class="tab-nav-wrap">
+        <div class="tab-scroll" role="tablist" aria-label="Lottery games">
+            <button class="tab-btn" data-game="powerball">⚡ Powerball</button>
+            <button class="tab-btn" data-game="mega">✨ Mega Millions</button>
+            <button class="tab-btn" data-game="lotto">🎱 NY Lotto</button>
+            <button class="tab-btn" data-game="millionaire">💎 Millionaire</button>
+            <button class="tab-btn" data-game="quickdraw">🎰 Quick Draw</button>
+            <button class="tab-btn" data-game="take5">🎯 Take 5</button>
+            <button class="tab-btn" data-game="pick10">🔟 Pick 10</button>
+            <button class="tab-btn" data-game="win4">4️⃣ Win 4</button>
+            <button class="tab-btn" data-game="numbers">🔢 Numbers</button>
+        </div>
+    </div>
+
+    <!-- POWERBALL -->
+    <div id="powerball-card" class="game-card">
+        <div class="card-header">
+            <div><div class="game-icon">⚡</div><h2>Powerball</h2><div class="card-header-sub">Pick 5 from 1–69 + Powerball from 1–26 &nbsp;·&nbsp; 🇺🇸 Nationwide</div></div>
+            <div class="card-draw-info"><div class="card-draw-label">Draw Days</div><div class="card-draw-days">Mon · Wed · Sat</div><div class="card-draw-time">10:59 PM ET</div><div class="card-draw-next" id="powerball-next"></div></div>
+        </div>
+        <div class="winning-section" id="powerball-winning-section">
+            <div class="winning-header"><div class="winning-title"><span class="winning-dot"></span>Latest Winning Numbers</div><span class="winning-date" id="powerball-winning-date"></span></div>
+            <div id="powerball-winning-balls"><div class="winning-loading"><span class="spin"></span>Loading...</div></div>
+        </div>
+        <div class="hot-section" id="powerball-hot-section">
+            <div class="hot-header"><span style="font-size:14px">&#128293;</span><span class="hot-title">Hot Numbers</span><span class="hot-sub">Last 100 draws</span></div>
+            <div class="hot-balls" id="powerball-hot-balls"><div class="winning-loading"><span class="spin"></span>Loading...</div></div>
+        </div>
+        <div class="cold-section" id="powerball-cold-section">
+            <div class="cold-header"><span style="font-size:14px">🧊</span><span class="cold-title">Cold Numbers</span><span class="cold-sub">Last 100 draws</span></div>
+            <div class="cold-balls" id="powerball-cold-balls"><div class="winning-loading"><span class="spin"></span>Loading...</div></div>
+        </div>
+        <div class="generate-wrap">
+            <button class="generate-btn" aria-label="Generate lucky numbers" onclick="generatePowerball()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+                Generate My Numbers
+            </button>
+        </div>
+        <div class="results-area" id="powerball-results"><div class="empty-state"><div class="empty-icon">🎰</div>Hit Generate to get your lucky numbers</div></div>
+    </div>
+
+    <!-- MEGA MILLIONS -->
+    <div id="mega-card" class="game-card">
+        <div class="card-header">
+            <div><div class="game-icon">✨</div><h2>Mega Millions</h2><div class="card-header-sub">Pick 5 from 1–70 + Mega Ball from 1–25 &nbsp;·&nbsp; 🇺🇸 Nationwide</div></div>
+            <div class="card-draw-info"><div class="card-draw-label">Draw Days</div><div class="card-draw-days">Tue · Fri</div><div class="card-draw-time">11:00 PM ET</div><div class="card-draw-next" id="mega-next"></div></div>
+        </div>
+        <div class="winning-section" id="mega-winning-section">
+            <div class="winning-header"><div class="winning-title"><span class="winning-dot"></span>Latest Winning Numbers</div><span class="winning-date" id="mega-winning-date"></span></div>
+            <div id="mega-winning-balls"><div class="winning-loading"><span class="spin"></span>Loading...</div></div>
+        </div>
+        <div class="hot-section" id="mega-hot-section">
+            <div class="hot-header"><span style="font-size:14px">&#128293;</span><span class="hot-title">Hot Numbers</span><span class="hot-sub">Last 100 draws</span></div>
+            <div class="hot-balls" id="mega-hot-balls"><div class="winning-loading"><span class="spin"></span>Loading...</div></div>
+        </div>
+        <div class="cold-section" id="mega-cold-section">
+            <div class="cold-header"><span style="font-size:14px">🧊</span><span class="cold-title">Cold Numbers</span><span class="cold-sub">Last 100 draws</span></div>
+            <div class="cold-balls" id="mega-cold-balls"><div class="winning-loading"><span class="spin"></span>Loading...</div></div>
+        </div>
+        <div class="generate-wrap">
+            <button class="generate-btn" aria-label="Generate lucky numbers" onclick="generateMega()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+                Generate My Numbers
+            </button>
+        </div>
+        <div class="results-area" id="mega-results"><div class="empty-state"><div class="empty-icon">✨</div>Hit Generate to get your lucky numbers</div></div>
+    </div>
+
+    <!-- NY LOTTO -->
+    <div id="lotto-card" class="game-card">
+        <div class="card-header">
+            <div><div class="game-icon">🎱</div><h2>NY Lotto</h2><div class="card-header-sub">Pick 6 from 1–59 + Bonus Ball from 1–59 &nbsp;·&nbsp; 🗽 NY Only</div></div>
+            <div class="card-draw-info"><div class="card-draw-label">Draw Days</div><div class="card-draw-days">Wed · Sat</div><div class="card-draw-time">11:21 PM ET</div><div class="card-draw-next" id="lotto-next"></div></div>
+        </div>
+        <div class="winning-section" id="lotto-winning-section">
+            <div class="winning-header"><div class="winning-title"><span class="winning-dot"></span>Latest Winning Numbers</div><span class="winning-date" id="lotto-winning-date"></span></div>
+            <div id="lotto-winning-balls"><div class="winning-loading"><span class="spin"></span>Loading...</div></div>
+        </div>
+        <div class="hot-section" id="lotto-hot-section">
+            <div class="hot-header"><span style="font-size:14px">&#128293;</span><span class="hot-title">Hot Numbers</span><span class="hot-sub">Last 100 draws</span></div>
+            <div class="hot-balls" id="lotto-hot-balls"><div class="winning-loading"><span class="spin"></span>Loading...</div></div>
+        </div>
+        <div class="cold-section" id="lotto-cold-section">
+            <div class="cold-header"><span style="font-size:14px">🧊</span><span class="cold-title">Cold Numbers</span><span class="cold-sub">Last 100 draws</span></div>
+            <div class="cold-balls" id="lotto-cold-balls"><div class="winning-loading"><span class="spin"></span>Loading...</div></div>
+        </div>
+        <div class="generate-wrap">
+            <button class="generate-btn" aria-label="Generate lucky numbers" onclick="generateLotto()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+                Generate My Numbers
+            </button>
+        </div>
+        <div class="results-area" id="lotto-results"><div class="empty-state"><div class="empty-icon">🎱</div>Hit Generate to get your lucky numbers</div></div>
+    </div>
+
+    <!-- MILLIONAIRE -->
+    <div id="millionaire-card" class="game-card">
+        <div class="card-header">
+            <div><div class="game-icon">💎</div><h2>Millionaire for Life</h2><div class="card-header-sub">Pick 5 from 1–58 + Millionaire Ball from 1–5 &nbsp;·&nbsp; 🇺🇸 Nationwide</div></div>
+            <div class="card-draw-info"><div class="card-draw-label">Draw Days</div><div class="card-draw-days">Mon · Thu</div><div class="card-draw-time">9:00 PM ET</div><div class="card-draw-next" id="millionaire-next"></div></div>
+        </div>
+        <div class="winning-section" id="millionaire-winning-section">
+            <div class="winning-header"><div class="winning-title"><span class="winning-dot"></span>Latest Winning Numbers</div><span class="winning-date" id="millionaire-winning-date"></span></div>
+            <div id="millionaire-winning-balls"><div class="winning-loading"><span class="spin"></span>Loading...</div></div>
+        </div>
+        <div class="hot-section" id="millionaire-hot-section">
+            <div class="hot-header"><span style="font-size:14px">&#128293;</span><span class="hot-title">Hot Numbers</span><span class="hot-sub">Last 100 draws</span></div>
+            <div class="hot-balls" id="millionaire-hot-balls"><div class="winning-loading"><span class="spin"></span>Loading...</div></div>
+        </div>
+        <div class="cold-section" id="millionaire-cold-section">
+            <div class="cold-header"><span style="font-size:14px">🧊</span><span class="cold-title">Cold Numbers</span><span class="cold-sub">Last 100 draws</span></div>
+            <div class="cold-balls" id="millionaire-cold-balls"><div class="winning-loading"><span class="spin"></span>Loading...</div></div>
+        </div>
+        <div class="generate-wrap">
+            <button class="generate-btn" aria-label="Generate lucky numbers" onclick="generateMillionaire()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+                Generate My Numbers
+            </button>
+        </div>
+        <div class="results-area" id="millionaire-results"><div class="empty-state"><div class="empty-icon">💎</div>Hit Generate to get your lucky numbers</div></div>
+    </div>
+
+    <!-- QUICK DRAW -->
+    <div id="quickdraw-card" class="game-card">
+        <div class="card-header">
+            <div><div class="game-icon">🎰</div><h2>Quick Draw</h2><div class="card-header-sub">10 numbers drawn from 1–80 &nbsp;·&nbsp; 🗽 NY Only</div></div>
+            <div class="card-draw-info"><div class="card-draw-label">Draw Schedule</div><div class="card-draw-days">Every 4 min</div><div class="card-draw-time">4:00 AM – 2:00 AM ET</div><div class="card-draw-next" id="quickdraw-next"></div></div>
+        </div>
+        <div class="winning-section" id="quickdraw-winning-section">
+            <div class="winning-header"><div class="winning-title"><span class="winning-dot"></span>Latest Winning Numbers</div><span class="winning-date" id="quickdraw-winning-date"></span></div>
+            <div id="quickdraw-winning-balls"><div class="winning-loading"><span class="spin"></span>Loading...</div></div>
+        </div>
+        <div class="hot-section" id="quickdraw-hot-section">
+            <div class="hot-header"><span style="font-size:14px">&#128293;</span><span class="hot-title">Hot Numbers</span><span class="hot-sub">Last ~3 hours</span></div>
+            <div class="hot-balls" id="quickdraw-hot-balls"><div class="winning-loading"><span class="spin"></span>Loading...</div></div>
+        </div>
+        <div class="cold-section" id="quickdraw-cold-section">
+            <div class="cold-header"><span style="font-size:14px">🧊</span><span class="cold-title">Cold Numbers</span><span class="cold-sub">Last ~3 hours</span></div>
+            <div class="cold-balls" id="quickdraw-cold-balls"><div class="winning-loading"><span class="spin"></span>Loading...</div></div>
+        </div>
+        <div class="generate-wrap">
+            <button class="generate-btn" aria-label="Generate lucky numbers" onclick="generateQuickDraw()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+                Generate My Numbers
+            </button>
+        </div>
+        <div class="results-area" id="quickdraw-results"><div class="empty-state"><div class="empty-icon">🎰</div>Hit Generate to get your lucky numbers</div></div>
+    </div>
+
+    <!-- TAKE 5 -->
+    <div id="take5-card" class="game-card">
+        <div class="card-header">
+            <div><div class="game-icon">🎯</div><h2>Take 5</h2><div class="card-header-sub">Pick 5 from 1–39 · No bonus ball &nbsp;·&nbsp; 🗽 NY Only</div></div>
+            <div class="card-draw-info"><div class="card-draw-label">Draw Days</div><div class="card-draw-days">Daily</div><div class="card-draw-time">2:30 PM &amp; 10:30 PM ET</div><div class="card-draw-next" id="take5-next"></div></div>
+        </div>
+        <div class="winning-section" id="take5-winning-section">
+            <div class="winning-header"><div class="winning-title"><span class="winning-dot"></span>Latest Winning Numbers</div><span class="winning-date" id="take5-winning-date"></span></div>
+            <div id="take5-winning-balls"><div class="winning-loading"><span class="spin"></span>Loading...</div></div>
+        </div>
+        <div class="hot-section" id="take5-hot-section">
+            <div class="hot-header"><span style="font-size:14px">&#128293;</span><span class="hot-title">Hot Numbers</span><span class="hot-sub">Last 100 draws</span></div>
+            <div class="hot-balls" id="take5-hot-balls"><div class="winning-loading"><span class="spin"></span>Loading...</div></div>
+        </div>
+        <div class="cold-section" id="take5-cold-section">
+            <div class="cold-header"><span style="font-size:14px">🧊</span><span class="cold-title">Cold Numbers</span><span class="cold-sub">Last 100 draws</span></div>
+            <div class="cold-balls" id="take5-cold-balls"><div class="winning-loading"><span class="spin"></span>Loading...</div></div>
+        </div>
+        <div class="generate-wrap">
+            <button class="generate-btn" aria-label="Generate lucky numbers" onclick="generateTake5()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+                Generate My Numbers
+            </button>
+        </div>
+        <div class="results-area" id="take5-results"><div class="empty-state"><div class="empty-icon">🎯</div>Hit Generate to get your lucky numbers</div></div>
+    </div>
+
+    <!-- PICK 10 -->
+    <div id="pick10-card" class="game-card">
+        <div class="card-header">
+            <div><div class="game-icon">🔟</div><h2>Pick 10</h2><div class="card-header-sub">10 numbers from 1–80 · No bonus ball &nbsp;·&nbsp; 🗽 NY Only</div></div>
+            <div class="card-draw-info"><div class="card-draw-label">Draw Days</div><div class="card-draw-days">Daily</div><div class="card-draw-time">2:30 PM &amp; 10:30 PM ET</div><div class="card-draw-next" id="pick10-next"></div></div>
+        </div>
+        <div class="winning-section" id="pick10-winning-section">
+            <div class="winning-header"><div class="winning-title"><span class="winning-dot"></span>Latest Winning Numbers</div><span class="winning-date" id="pick10-winning-date"></span></div>
+            <div id="pick10-winning-balls"><div class="winning-loading"><span class="spin"></span>Loading...</div></div>
+        </div>
+        <div class="hot-section" id="pick10-hot-section">
+            <div class="hot-header"><span style="font-size:14px">&#128293;</span><span class="hot-title">Hot Numbers</span><span class="hot-sub">Last 100 draws</span></div>
+            <div class="hot-balls" id="pick10-hot-balls"><div class="winning-loading"><span class="spin"></span>Loading...</div></div>
+        </div>
+        <div class="cold-section" id="pick10-cold-section">
+            <div class="cold-header"><span style="font-size:14px">🧊</span><span class="cold-title">Cold Numbers</span><span class="cold-sub">Last 100 draws</span></div>
+            <div class="cold-balls" id="pick10-cold-balls"><div class="winning-loading"><span class="spin"></span>Loading...</div></div>
+        </div>
+        <div class="generate-wrap">
+            <button class="generate-btn" aria-label="Generate lucky numbers" onclick="generatePick10()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+                Generate My Numbers
+            </button>
+        </div>
+        <div class="results-area" id="pick10-results"><div class="empty-state"><div class="empty-icon">🔟</div>Hit Generate to get your lucky numbers</div></div>
+    </div>
+
+    <!-- WIN 4 -->
+    <div id="win4-card" class="game-card">
+        <div class="card-header">
+            <div><div class="game-icon">4️⃣</div><h2>Win 4</h2><div class="card-header-sub">4 digits from 0–9 · Repeats allowed &nbsp;·&nbsp; 🗽 NY Only</div></div>
+            <div class="card-draw-info"><div class="card-draw-label">Draw Days</div><div class="card-draw-days">Daily</div><div class="card-draw-time">2:30 PM &amp; 10:30 PM ET</div><div class="card-draw-next" id="win4-next"></div></div>
+        </div>
+        <div class="winning-section" id="win4-winning-section">
+            <div class="winning-header"><div class="winning-title"><span class="winning-dot"></span>Latest Winning Numbers</div><span class="winning-date" id="win4-winning-date"></span></div>
+            <div id="win4-winning-balls"><div class="winning-loading"><span class="spin"></span>Loading...</div></div>
+        </div>
+        <div class="hot-section" id="win4-hot-section">
+            <div class="hot-header"><span style="font-size:14px">&#128293;</span><span class="hot-title">Hot Numbers</span><span class="hot-sub">Last 100 draws</span></div>
+            <div class="hot-balls" id="win4-hot-balls"><div class="winning-loading"><span class="spin"></span>Loading...</div></div>
+        </div>
+        <div class="cold-section" id="win4-cold-section">
+            <div class="cold-header"><span style="font-size:14px">🧊</span><span class="cold-title">Cold Numbers</span><span class="cold-sub">Last 100 draws</span></div>
+            <div class="cold-balls" id="win4-cold-balls"><div class="winning-loading"><span class="spin"></span>Loading...</div></div>
+        </div>
+        <div class="generate-wrap">
+            <button class="generate-btn" aria-label="Generate lucky numbers" onclick="generateWin4()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+                Generate My Numbers
+            </button>
+        </div>
+        <div class="results-area" id="win4-results"><div class="empty-state"><div class="empty-icon">4️⃣</div>Hit Generate to get your lucky numbers</div></div>
+    </div>
+
+    <!-- NUMBERS -->
+    <div id="numbers-card" class="game-card">
+        <div class="card-header">
+            <div><div class="game-icon">🔢</div><h2>Numbers</h2><div class="card-header-sub">3 digits from 0–9 · Repeats allowed &nbsp;·&nbsp; 🗽 NY Only</div></div>
+            <div class="card-draw-info"><div class="card-draw-label">Draw Days</div><div class="card-draw-days">Daily</div><div class="card-draw-time">2:30 PM &amp; 10:30 PM ET</div><div class="card-draw-next" id="numbers-next"></div></div>
+        </div>
+        <div class="winning-section" id="numbers-winning-section">
+            <div class="winning-header"><div class="winning-title"><span class="winning-dot"></span>Latest Winning Numbers</div><span class="winning-date" id="numbers-winning-date"></span></div>
+            <div id="numbers-winning-balls"><div class="winning-loading"><span class="spin"></span>Loading...</div></div>
+        </div>
+        <div class="hot-section" id="numbers-hot-section">
+            <div class="hot-header"><span style="font-size:14px">&#128293;</span><span class="hot-title">Hot Numbers</span><span class="hot-sub">Last 100 draws</span></div>
+            <div class="hot-balls" id="numbers-hot-balls"><div class="winning-loading"><span class="spin"></span>Loading...</div></div>
+        </div>
+        <div class="cold-section" id="numbers-cold-section">
+            <div class="cold-header"><span style="font-size:14px">🧊</span><span class="cold-title">Cold Numbers</span><span class="cold-sub">Last 100 draws</span></div>
+            <div class="cold-balls" id="numbers-cold-balls"><div class="winning-loading"><span class="spin"></span>Loading...</div></div>
+        </div>
+        <div class="generate-wrap">
+            <button class="generate-btn" aria-label="Generate lucky numbers" onclick="generateNumbers()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+                Generate My Numbers
+            </button>
+        </div>
+        <div class="results-area" id="numbers-results"><div class="empty-state"><div class="empty-icon">🔢</div>Hit Generate to get your lucky numbers</div></div>
+    </div>
+
+    <div class="legal-footer" style="padding:20px 0 0">
+        <div class="legal-block">
+            <div class="legal-block-title">⚠️ Disclaimer</div>
+            <p>This app is <strong style="color:var(--text)">not affiliated with, endorsed by, or connected to</strong> the New York State Gaming Commission or NY Lottery. Independent unofficial application. Generated numbers do not guarantee any winnings. Must be 18+.</p>
+        </div>
+        <div class="legal-block">
+            <div class="legal-block-title">📊 Data Sources</div>
+            <p>Winning numbers sourced from <a href="https://data.ny.gov" target="_blank" rel="noopener">New York State Open Data (data.ny.gov)</a> under NY Open Data Terms of Use. Official results at <a href="https://nylottery.ny.gov" target="_blank" rel="noopener">nylottery.ny.gov</a>.</p>
+        </div>
+        <div class="legal-copy">&copy; 2026 LuckyPick &nbsp;·&nbsp; Unofficial &nbsp;·&nbsp; For entertainment only</div>
+    </div>
+</div>
+
+<!-- ══ SAVED / MY NUMBERS SCREEN ══ -->
+<div id="saved-screen" class="screen">
+    <div class="saved-topbar">
+        <div class="saved-topbar-left">
+            <button class="back-btn" onclick="goHome()" aria-label="Go back to all games">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+                All Games
+            </button>
+            <span style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:#fff;">My Numbers</span>
+            <span id="saved-count-badge" class="saved-count-badge" style="display:none">0</span>
+        </div>
+        <button class="clear-all-btn" onclick="clearAllSaved()" id="clear-all-btn" aria-label="Clear all saved numbers" style="display:none">
+            🗑 Clear All
+        </button>
+    </div>
+
+    <div id="saved-list"></div>
+
+    <div class="legal-footer" style="padding:20px 0 0; margin-top: 8px;">
+        <div class="legal-copy">&copy; 2026 LuckyPick &nbsp;·&nbsp; Unofficial &nbsp;·&nbsp; For entertainment only</div>
+    </div>
+</div>
+
+
+<!-- ══ PHASE 2: PRIVACY POLICY SCREEN ══ -->
+<div id="privacy-screen" class="screen">
+    <div class="legal-topbar">
+        <button class="back-btn" onclick="goHome()" aria-label="Go back to home">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            Back
+        </button>
+        <span class="legal-screen-title">Privacy Policy</span>
+    </div>
+    <div class="legal-doc">
+        <h2>Privacy Policy</h2>
+        <span class="legal-updated">Last updated: April 27, 2026</span>
+
+        <div class="highlight-box">
+            <p>⚠️ <strong>Unofficial App.</strong> LuckyPick is not affiliated with, endorsed by, or connected to the New York State Gaming Commission, NY Lottery, or any official lottery organization.</p>
+        </div>
+
+        <h3>1. Who We Are</h3>
+        <p>LuckyPick is an independent, unofficial lottery number generator application for entertainment purposes only. We are not a lottery operator and do not facilitate gambling or financial transactions of any kind.</p>
+
+        <h3>2. Information We Collect</h3>
+        <p>LuckyPick is designed to collect as little data as possible. Specifically:</p>
+        <ul>
+            <li><strong>No personal information</strong> is collected, stored, or transmitted to any server.</li>
+            <li><strong>No account registration</strong> is required or available.</li>
+            <li><strong>No cookies</strong> are used for tracking or advertising.</li>
+            <li><strong>Device storage only:</strong> Your saved numbers, age verification, and app preferences are stored locally on your device using browser localStorage. This data never leaves your device.</li>
+        </ul>
+
+        <h3>3. Lottery Data</h3>
+        <p>Winning numbers and statistical data are fetched directly from the <strong>New York State Open Data portal (data.ny.gov)</strong> — a free public API. No user data is sent during these requests. The app only receives publicly available lottery result data.</p>
+
+        <h3>4. Third Parties</h3>
+        <p>LuckyPick uses the following third-party services:</p>
+        <ul>
+            <li><strong>Google Fonts</strong> — for typography display only. No user data is shared.</li>
+            <li><strong>New York State Open Data (data.ny.gov)</strong> — for publicly available lottery results.</li>
+        </ul>
+        <p>We do not use advertising networks, analytics platforms, or social media trackers.</p>
+
+        <h3>5. Data Storage &amp; Security</h3>
+        <p>All data is stored locally on your device. You can clear all saved data at any time by using the "Clear All" button in the My Numbers screen, or by clearing your browser/app data through your device settings.</p>
+
+        <h3>6. Age Restriction</h3>
+        <p>This application is intended for users who are <strong>18 years of age or older</strong>. We do not knowingly collect information from minors. If you are under 18, please do not use this application.</p>
+
+        <h3>7. Entertainment Only</h3>
+        <p>LuckyPick is for <strong>entertainment purposes only</strong>. Generated numbers are random and do not improve the odds of winning any lottery. This app does not constitute financial advice, gambling advice, or any form of lottery strategy service.</p>
+
+        <h3>8. Your Rights</h3>
+        <p>Since we do not collect or store any personal data on our servers, there is no personal data to request, modify, or delete from our end. All your data is on your own device and under your full control.</p>
+
+        <h3>9. Changes to This Policy</h3>
+        <p>We may update this Privacy Policy from time to time. Any changes will be reflected by the "Last updated" date at the top of this page.</p>
+
+        <h3>10. Contact</h3>
+        <p>If you have questions about this Privacy Policy, please use the feedback option in your app store listing.</p>
+
+        <div class="crisis-box">
+            <p>🆘 <strong>Problem Gambling Help:</strong> If gambling is causing problems, call <strong>1-800-GAMBLER</strong> (1-800-426-2537) or visit <a href="https://ncpgambling.org" style="color:#86efac">ncpgambling.org</a>. NY residents: 1-877-8-HOPE-NY or text HOPENY (467369).</p>
+        </div>
+    </div>
+    <div class="legal-copy" style="text-align:center;font-size:11px;color:#3a445a;margin-top:16px;padding-bottom:8px;">
+        &copy; 2026 LuckyPick &nbsp;·&nbsp; Unofficial &nbsp;·&nbsp; For entertainment only
+    </div>
+</div>
+
+<!-- ══ PHASE 2: TERMS OF SERVICE SCREEN ══ -->
+<div id="terms-screen" class="screen">
+    <div class="legal-topbar">
+        <button class="back-btn" onclick="goHome()" aria-label="Go back to home">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            Back
+        </button>
+        <span class="legal-screen-title">Terms of Service</span>
+    </div>
+    <div class="legal-doc">
+        <h2>Terms of Service</h2>
+        <span class="legal-updated">Last updated: April 27, 2026</span>
+
+        <div class="highlight-box">
+            <p>⚠️ <strong>Unofficial App.</strong> LuckyPick is not affiliated with, endorsed by, or connected to the New York State Gaming Commission, NY Lottery, or any official lottery organization. Use of this app does not constitute participation in any lottery.</p>
+        </div>
+
+        <h3>1. Acceptance of Terms</h3>
+        <p>By accessing or using LuckyPick, you confirm that you are at least <strong>18 years of age</strong> and agree to these Terms of Service. If you do not agree, please discontinue use immediately.</p>
+
+        <h3>2. Unofficial Disclaimer</h3>
+        <p>LuckyPick is an <strong>independent, unofficial application</strong>. It is not sponsored, endorsed, operated, or approved by the New York State Gaming Commission, New York Lottery, Powerball, Mega Millions, or any other lottery organization. All lottery names, game names, and trademarks are the property of their respective owners.</p>
+
+        <h3>3. Entertainment Only — No Financial Advice</h3>
+        <p>All numbers generated by LuckyPick are produced by a random number generator. LuckyPick:</p>
+        <ul>
+            <li>Does <strong>not</strong> improve your odds of winning any lottery</li>
+            <li>Does <strong>not</strong> provide gambling advice, financial advice, or lottery strategy</li>
+            <li>Does <strong>not</strong> guarantee any lottery winnings</li>
+            <li>Is provided for <strong>entertainment and informational purposes only</strong></li>
+        </ul>
+
+        <h3>4. Age Requirement</h3>
+        <p>You must be <strong>18 years of age or older</strong> (or the legal gambling age in your jurisdiction, whichever is higher) to use this application. By using LuckyPick, you represent and warrant that you meet this age requirement.</p>
+
+        <h3>5. Data Accuracy</h3>
+        <p>Winning number data is sourced from the New York State Open Data portal (data.ny.gov). While we strive for accuracy, LuckyPick makes no warranty regarding the completeness, accuracy, or timeliness of lottery results displayed. Always verify results at <a href="https://nylottery.ny.gov">nylottery.ny.gov</a> before making any decisions.</p>
+
+        <h3>6. Limitation of Liability</h3>
+        <p>To the fullest extent permitted by law, LuckyPick and its developers shall not be liable for any direct, indirect, incidental, special, or consequential damages arising from your use of this application, including but not limited to losses from lottery ticket purchases made based on numbers generated by this app.</p>
+
+        <h3>7. Responsible Gambling</h3>
+        <p>Lottery games involve real financial risk. Please play responsibly and within your means.</p>
+
+        <div class="crisis-box">
+            <p>🆘 <strong>Problem Gambling Help:</strong> If gambling is causing problems, call <strong>1-800-GAMBLER</strong> (1-800-426-2537) or visit <a href="https://ncpgambling.org" style="color:#86efac">ncpgambling.org</a>. NY residents: 1-877-8-HOPE-NY or text HOPENY (467369).</p>
+        </div>
+
+        <h3>8. Changes to Terms</h3>
+        <p>We reserve the right to update these Terms of Service at any time. Continued use of the app after changes constitutes acceptance of the updated terms.</p>
+
+        <h3>9. Governing Law</h3>
+        <p>These terms are governed by the laws of the State of New York, United States.</p>
+    </div>
+    <div class="legal-copy" style="text-align:center;font-size:11px;color:#3a445a;margin-top:16px;padding-bottom:8px;">
+        &copy; 2026 LuckyPick &nbsp;·&nbsp; Unofficial &nbsp;·&nbsp; For entertainment only
+    </div>
+</div>
+
+<script>
+/* ══ [Phase 1.1] ET TIME ZONE HELPER ══
+   Always compute Eastern Time regardless of user's device timezone.
+   Handles both EST (UTC-5) and EDT (UTC-4) automatically via DST detection. */
+function getETTime() {
+    var now = new Date();
+    var utcMs = now.getTime() + (now.getTimezoneOffset() * 60000);
+    /* DST detection: if current offset is less than the max offset (winter), it's DST */
+    var jan = new Date(now.getFullYear(), 0, 1);
+    var jul = new Date(now.getFullYear(), 6, 1);
+    var stdOffset = Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
+    var isDST = now.getTimezoneOffset() < stdOffset;
+    var etOffsetMs = isDST ? (-4 * 3600000) : (-5 * 3600000); /* EDT = -4, EST = -5 */
+    return new Date(utcMs + etOffsetMs);
+}
+
+/* ══ DRAW SCHEDULE ══ */
+var GAMES = {
+    powerball:   { days:[1,3,6], hour:22, min:59 },
+    mega:        { days:[2,5],   hour:23, min:0  },
+    lotto:       { days:[3,6],   hour:23, min:21 },
+    millionaire: { days:[1,4],   hour:21, min:0  },
+    quickdraw:   { days:[0,1,2,3,4,5,6], hour:2,  min:0  },
+    take5:       { days:[0,1,2,3,4,5,6], hour:22, min:30 },
+    pick10:      { days:[0,1,2,3,4,5,6], hour:22, min:30 },
+    win4:        { days:[0,1,2,3,4,5,6], hour:22, min:30 },
+    numbers:     { days:[0,1,2,3,4,5,6], hour:22, min:30 }
+};
+var DAY_FULL = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+/* [Phase 1.1] getNextDraw now uses ET time instead of local device time */
+function getNextDraw(gameId) {
+    var g = GAMES[gameId]; if (!g) return '';
+    var now = getETTime(); /* FIX: was new Date() — used device local time */
+    var dow = now.getDay();
+    var h = now.getHours(), m = now.getMinutes();
+    if (gameId === 'quickdraw') {
+        var active = (h >= 4) && !(h === 2 && m > 0) && h < 26; /* 4AM-2AM ET window */
+        if (active) return 'Next draw in ~' + (4 - (m % 4)) + ' min ET';
+        return 'Opens at 4:00 AM ET';
+    }
+    for (var offset = 0; offset <= 7; offset++) {
+        var checkDay = (dow + offset) % 7;
+        for (var di = 0; di < g.days.length; di++) {
+            if (g.days[di] === checkDay) {
+                if (offset === 0 && (h > g.hour || (h === g.hour && m >= g.min))) continue;
+                var label = offset === 0 ? 'Today' : (offset === 1 ? 'Tomorrow' : DAY_FULL[checkDay]);
+                var hh = g.hour > 12 ? g.hour - 12 : (g.hour === 0 ? 12 : g.hour);
+                var ap = g.hour >= 12 ? 'PM' : 'AM';
+                var mm = g.min < 10 ? '0' + g.min : '' + g.min;
+                return 'Next: ' + label + ' @ ' + hh + ':' + mm + ' ' + ap + ' ET';
+            }
+        }
+    }
+    return '';
+}
+
+function updateNextDraws() {
+    var ids = ['powerball','mega','lotto','millionaire','quickdraw','take5','pick10','win4','numbers'];
+    for (var i = 0; i < ids.length; i++) {
+        /* update game screen next-draw label */
+        var el = document.getElementById(ids[i] + '-next');
+        if (el) el.textContent = getNextDraw(ids[i]);
+        /* update home screen tile next-draw label */
+        var hel = document.getElementById('home-' + ids[i] + '-next');
+        if (hel) hel.textContent = getNextDraw(ids[i]);
+    }
+}
+
+/* ══ [Phase 1.1] LIVE CLOCK — shows ET time ══ */
+function updateClock() {
+    var et = getETTime(); /* FIX: was new Date() — used device local time */
+    var h = et.getHours(), m = et.getMinutes(), s = et.getSeconds();
+    var ampm = h >= 12 ? 'PM' : 'AM';
+    var h12 = h % 12 || 12;
+    function pad(n) { return n < 10 ? '0' + n : '' + n; }
+    var el = document.getElementById('live-time');
+    var del = document.getElementById('live-date');
+    if (el) el.textContent = h12 + ':' + pad(m) + ':' + pad(s) + ' ' + ampm + ' ET';
+    if (del) del.textContent = (et.getMonth()+1) + '/' + et.getDate() + '/' + et.getFullYear();
+}
+
+/* ══ WINNING NUMBERS API ══
+   Sources: data.ny.gov SODA API (all free, no auth required)
+   POWERBALL  (d6yy-54nr): "Winning Numbers" = "n1 n2 n3 n4 n5 pb"
+   MEGA       (5xaw-6ayf): "Winning Numbers" = 5 main, "Mega Ball" separate
+   NY LOTTO   (6nbc-h7bj): "Winning Numbers" = 6 main, "Bonus #" separate
+   MILLIONAIRE(a4w9-a3tp): auto-scan for bonus ball in 1-5 range
+   QUICK DRAW (7sqk-ycpk): "Winning Numbers" = space-separated 10 numbers
+   TAKE 5     (dg63-4siq): "Evening Winning Numbers" / "Midday Winning Numbers"
+   PICK 10    (bycu-cw7c): "Winning Numbers" — space-separated
+   WIN 4      (hj4u-8nyt): auto-scan for 4-digit string
+   NUMBERS    (hsys-3def): auto-scan for 3-digit string
+══ */
+var API_CFG = {
+    powerball: {
+        url: 'https://data.ny.gov/resource/d6yy-54nr.json?$limit=1&$order=draw_date+DESC',
+        parse: function(r) {
+            var raw = r.winning_numbers ? r.winning_numbers.trim() : '';
+            var tokens = raw.split(' ');
+            var balls = [];
+            for (var i = 0; i < tokens.length - 1; i++) {
+                if (tokens[i].trim()) balls.push({ n: parseInt(tokens[i], 10), bonus: false });
+            }
+            var pb = tokens[tokens.length - 1];
+            if (pb && pb.trim()) balls.push({ n: parseInt(pb, 10), bonus: true });
+            return { balls: balls, bonusClass: 'ball-w-bonus', date: r.draw_date };
+        }
+    },
+    mega: {
+        url: 'https://data.ny.gov/resource/5xaw-6ayf.json?$limit=1&$order=draw_date+DESC',
+        parse: function(r) {
+            var raw = r.winning_numbers ? r.winning_numbers.trim() : '';
+            var tokens = raw.split(' ');
+            var balls = [];
+            for (var i = 0; i < tokens.length; i++) {
+                if (tokens[i].trim()) balls.push({ n: parseInt(tokens[i], 10), bonus: false });
+            }
+            var mb = r.mega_ball || r.megaball || '';
+            if (mb) balls.push({ n: parseInt(mb, 10), bonus: true });
+            return { balls: balls, bonusClass: 'ball-w-bonus-gold', date: r.draw_date };
+        }
+    },
+    lotto: {
+        url: 'https://data.ny.gov/resource/6nbc-h7bj.json?$limit=1&$order=draw_date+DESC',
+        parse: function(r) {
+            var raw = r.winning_numbers ? r.winning_numbers.trim() : '';
+            var tokens = raw.split(' ');
+            var balls = [];
+            for (var i = 0; i < tokens.length; i++) {
+                if (tokens[i].trim()) balls.push({ n: parseInt(tokens[i], 10), bonus: false });
+            }
+            var bn = r['bonus_'] || r.bonus || r['bonus_number'] || '';
+            if (bn) balls.push({ n: parseInt(bn, 10), bonus: true });
+            return { balls: balls, bonusClass: 'ball-w-bonus-green', date: r.draw_date };
+        }
+    },
+    millionaire: {
+        url: 'https://data.ny.gov/resource/a4w9-a3tp.json?$limit=1&$order=draw_date+DESC',
+        parse: function(r) {
+            var raw = r.winning_numbers ? r.winning_numbers.trim() : '';
+            var tokens = raw.split(' ');
+            var balls = [];
+            for (var i = 0; i < tokens.length; i++) {
+                var t = tokens[i].trim();
+                if (t) balls.push({ n: parseInt(t, 10), bonus: false });
+            }
+            var mbRaw = r.millionaire_ball   || r.millionaire_ball_
+                     || r.millionaire_ball_number
+                     || r.life_ball          || r.life_ball_
+                     || r.mega_ball          || r.mega_ball_
+                     || r.bonus_ball         || r.bonus_ball_
+                     || r.bonus_             || r.bonus
+                     || r.multiplier         || r.powerball
+                     || '';
+            if (!mbRaw) {
+                var keys = Object.keys(r);
+                for (var k = 0; k < keys.length; k++) {
+                    var key = keys[k];
+                    if (key === 'draw_date' || key === 'winning_numbers' || key.charAt(0) === ':') continue;
+                    var candidate = parseInt(r[key], 10);
+                    if (!isNaN(candidate) && candidate >= 1 && candidate <= 5) { mbRaw = r[key]; break; }
+                }
+            }
+            if (mbRaw) balls.push({ n: parseInt(mbRaw, 10), bonus: true });
+            return { balls: balls, bonusClass: 'ball-w-bonus-gold', date: r.draw_date };
+        }
+    },
+    quickdraw: {
+        url: 'https://data.ny.gov/resource/7sqk-ycpk.json?$limit=1&$order=draw_date+DESC',
+        parse: function(r) {
+            var raw = r.winning_numbers ? r.winning_numbers.trim() : '';
+            var tokens = raw.split(' ');
+            var balls = [];
+            for (var i = 0; i < tokens.length; i++) {
+                if (tokens[i].trim()) balls.push({ n: parseInt(tokens[i], 10), bonus: false });
+            }
+            return { balls: balls, bonusClass: '', date: r.draw_date };
+        }
+    },
+    take5: {
+        url: 'https://data.ny.gov/resource/dg63-4siq.json?$limit=1&$order=draw_date+DESC',
+        parse: function(r) {
+            var raw = r.evening_winning_numbers || r.midday_winning_numbers || '';
+            raw = raw.trim();
+            var tokens = raw.split(' ');
+            var balls = [];
+            for (var i = 0; i < tokens.length; i++) {
+                var t = tokens[i].trim();
+                if (t) balls.push({ n: parseInt(t, 10), bonus: false });
+            }
+            return { balls: balls, bonusClass: '', date: r.draw_date };
+        }
+    },
+    pick10: {
+        url: 'https://data.ny.gov/resource/bycu-cw7c.json?$limit=1&$order=draw_date+DESC',
+        parse: function(r) {
+            var raw = r.winning_numbers ? r.winning_numbers.trim() : '';
+            var tokens = raw.split(' ');
+            var balls = [];
+            for (var i = 0; i < tokens.length; i++) {
+                if (tokens[i].trim()) balls.push({ n: parseInt(tokens[i], 10), bonus: false });
+            }
+            return { balls: balls, bonusClass: '', date: r.draw_date };
+        }
+    },
+    win4: {
+        url: 'https://data.ny.gov/resource/hj4u-8nyt.json?$limit=1&$order=draw_date+DESC',
+        parse: function(r) {
+            var eveningRaw = r.evening_win_4_ || r.evening_win_4 || r.evening_win_4_number || '';
+            var middayRaw  = r.midday_win_4_  || r.midday_win_4 || r.midday_win_4_number  || '';
+            if (!eveningRaw || !middayRaw) {
+                var keys = Object.keys(r);
+                for (var k = 0; k < keys.length; k++) {
+                    var key = keys[k];
+                    if (key === 'draw_date' || key.charAt(0) === ':') continue;
+                    var val = (r[key] || '').toString().replace(/\s/g, '');
+                    if (/^\d{3,4}$/.test(val)) {
+                        if (!eveningRaw && key.indexOf('evening') !== -1) eveningRaw = val;
+                        else if (!middayRaw && key.indexOf('midday') !== -1) middayRaw = val;
+                        else if (!eveningRaw) eveningRaw = val;
+                    }
+                }
+            }
+            var raw = (eveningRaw || middayRaw || '').toString().replace(/\s/g, '');
+            var balls = [];
+            for (var i = 0; i < raw.length; i++) { balls.push({ n: raw[i], bonus: false, zero: true }); }
+            return { balls: balls, bonusClass: '', date: r.draw_date };
+        }
+    },
+    numbers: {
+        url: 'https://data.ny.gov/resource/hsys-3def.json?$limit=1&$order=draw_date+DESC',
+        parse: function(r) {
+            var eveningRaw = r.evening_daily_ || r.evening_daily || r.evening_numbers_winning_numbers || '';
+            var middayRaw  = r.midday_daily_  || r.midday_daily  || r.midday_numbers_winning_numbers  || '';
+            if (!eveningRaw || !middayRaw) {
+                var keys = Object.keys(r);
+                for (var k = 0; k < keys.length; k++) {
+                    var key = keys[k];
+                    if (key === 'draw_date' || key.charAt(0) === ':') continue;
+                    if (key.indexOf('win') !== -1) continue;
+                    var val = (r[key] || '').toString().replace(/\s/g, '');
+                    if (/^\d{3}$/.test(val)) {
+                        if (!eveningRaw && key.indexOf('evening') !== -1) eveningRaw = val;
+                        else if (!middayRaw && key.indexOf('midday') !== -1) middayRaw = val;
+                        else if (!eveningRaw) eveningRaw = val;
+                    }
+                }
+            }
+            var raw = (eveningRaw || middayRaw || '').toString().replace(/\s/g, '');
+            var balls = [];
+            for (var i = 0; i < raw.length; i++) { balls.push({ n: raw[i], bonus: false, zero: true }); }
+            return { balls: balls, bonusClass: '', date: r.draw_date };
+        }
+    }
+};
+
+function formatDrawDate(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+}
+
+function renderWinningBalls(gameId, balls, bonusClass) {
+    var container = document.getElementById(gameId + '-winning-balls');
+    if (!container) return;
+    var row = document.createElement('div');
+    row.className = 'winning-balls';
+    var addedSep = false;
+    for (var i = 0; i < balls.length; i++) {
+        var item = balls[i];
+        if (item.bonus && !addedSep) {
+            var sep = document.createElement('div');
+            sep.className = 'ball-sep'; sep.textContent = '+';
+            row.appendChild(sep); addedSep = true;
+        }
+        var ball = document.createElement('div');
+        var wClass = 'ball-w ';
+        if (item.bonus)     wClass += bonusClass;
+        else if (item.zero) wClass += 'ball-w-zero';
+        else                wClass += 'ball-w-main';
+        ball.className = wClass;
+        ball.textContent = item.n;
+        row.appendChild(ball);
+    }
+    container.innerHTML = '';
+    container.appendChild(row);
+}
+
+function makeOfficialSiteHTML(url, label) {
+    return '<a href="' + url + '" target="_blank" rel="noopener" '
+         + 'style="display:inline-flex;align-items:center;gap:8px;'
+         + 'background:var(--surface2);border:1px solid var(--border);'
+         + 'border-radius:8px;padding:10px 14px;color:var(--gold);'
+         + 'font-size:13px;font-weight:600;text-decoration:none;'
+         + 'transition:border-color 0.2s;" '
+         + 'onmouseover="this.style.borderColor=\'rgba(212,168,67,0.5)\'" '
+         + 'onmouseout="this.style.borderColor=\'var(--border)\'">'
+         + '<span style="font-size:15px">&#x1F517;</span>'
+         + 'View ' + label + ' at nylottery.ny.gov'
+         + '<span style="font-size:11px;opacity:0.6">&#x2197;</span>'
+         + '</a>';
+}
+
+/* ══ [Phase 1.5] winningCache with TTL (6-hour expiration) ══ */
+var winningCache = {};  /* { gameId: { balls:[], timestamp:ms, ttl:ms } } */
+
+function cacheWinning(gameId, balls) {
+    winningCache[gameId] = {
+        balls: balls,
+        timestamp: Date.now(),
+        ttl: 6 * 3600000  /* 6 hours */
+    };
+}
+
+function getCachedWinning(gameId) {
+    var cached = winningCache[gameId];
+    if (!cached) return null;
+    if (Date.now() - cached.timestamp > cached.ttl) {
+        delete winningCache[gameId];  /* expire stale entry */
+        return null;
+    }
+    return cached.balls;
+}
+
+function fetchWinningNumbers(gameId) {
+    var cfg = API_CFG[gameId];
+    if (!cfg) return;
+    var ballsEl = document.getElementById(gameId + '-winning-balls');
+    var dateEl  = document.getElementById(gameId + '-winning-date');
+
+    if (cfg.useOfficialSite) {
+        if (dateEl) dateEl.textContent = '';
+        if (ballsEl) ballsEl.innerHTML = makeOfficialSiteHTML(cfg.officialUrl, cfg.officialLabel);
+        return;
+    }
+
+    if (ballsEl) ballsEl.innerHTML = '<div class="winning-loading"><span class="spin"></span>Loading...</div>';
+
+    fetch(cfg.url)
+        .then(function(resp) { return resp.json(); })
+        .then(function(data) {
+            if (!data || data.length === 0) {
+                if (ballsEl) ballsEl.innerHTML = '<div class="winning-error">No data available</div>';
+                return;
+            }
+            var parsed = cfg.parse(data[0]);
+            if (dateEl) dateEl.textContent = formatDrawDate(parsed.date);
+            renderWinningBalls(gameId, parsed.balls, parsed.bonusClass);
+            /* [Phase 1.5] cache with TTL */
+            cacheWinning(gameId, parsed.balls);
+        })
+        .catch(function() {
+            if (ballsEl) ballsEl.innerHTML = '<div class="winning-error">Could not load — check nylottery.ny.gov</div>';
+        });
+}
+
+var fetchedGames = {};
+var fetchedHot   = {};
+
+/* ══ HOT NUMBERS CONFIG ══ */
+var HOT_CFG = {
+    powerball: {
+        url: 'https://data.ny.gov/resource/d6yy-54nr.json?$limit=100&$order=draw_date+DESC',
+        extract: function(r) {
+            var raw = r.winning_numbers ? r.winning_numbers.trim() : '';
+            var tokens = raw.split(' ');
+            var nums = [];
+            for (var i = 0; i < tokens.length - 1; i++) {
+                var n = parseInt(tokens[i], 10); if (!isNaN(n)) nums.push(n);
+            }
+            return nums;
+        },
+        top: 5, isDigit: false
+    },
+    mega: {
+        url: 'https://data.ny.gov/resource/5xaw-6ayf.json?$limit=100&$order=draw_date+DESC',
+        extract: function(r) {
+            var raw = r.winning_numbers ? r.winning_numbers.trim() : '';
+            var tokens = raw.split(' ');
+            var nums = [];
+            for (var i = 0; i < tokens.length; i++) {
+                var n = parseInt(tokens[i], 10); if (!isNaN(n)) nums.push(n);
+            }
+            return nums;
+        },
+        top: 5, isDigit: false
+    },
+    lotto: {
+        url: 'https://data.ny.gov/resource/6nbc-h7bj.json?$limit=100&$order=draw_date+DESC',
+        extract: function(r) {
+            var raw = r.winning_numbers ? r.winning_numbers.trim() : '';
+            var tokens = raw.split(' ');
+            var nums = [];
+            for (var i = 0; i < tokens.length; i++) {
+                var n = parseInt(tokens[i], 10); if (!isNaN(n)) nums.push(n);
+            }
+            return nums;
+        },
+        top: 6, isDigit: false
+    },
+    millionaire: {
+        url: 'https://data.ny.gov/resource/a4w9-a3tp.json?$limit=100&$order=draw_date+DESC',
+        extract: function(r) {
+            var raw = r.winning_numbers ? r.winning_numbers.trim() : '';
+            var tokens = raw.split(' ');
+            var nums = [];
+            for (var i = 0; i < tokens.length; i++) {
+                var n = parseInt(tokens[i], 10); if (!isNaN(n)) nums.push(n);
+            }
+            return nums;
+        },
+        top: 5, isDigit: false
+    },
+    quickdraw: {
+        url: 'https://data.ny.gov/resource/7sqk-ycpk.json?$limit=50&$order=draw_date+DESC',
+        extract: function(r) {
+            var raw = r.winning_numbers ? r.winning_numbers.trim() : '';
+            var tokens = raw.split(' ');
+            var nums = [];
+            for (var i = 0; i < tokens.length; i++) {
+                var n = parseInt(tokens[i], 10); if (!isNaN(n)) nums.push(n);
+            }
+            return nums;
+        },
+        top: 5, isDigit: false
+    },
+    take5: {
+        url: 'https://data.ny.gov/resource/dg63-4siq.json?$limit=100&$order=draw_date+DESC',
+        extract: function(r) {
+            var raw = (r.evening_winning_numbers || r.midday_winning_numbers || '').trim();
+            var tokens = raw.split(' ');
+            var nums = [];
+            for (var i = 0; i < tokens.length; i++) {
+                var n = parseInt(tokens[i], 10); if (!isNaN(n)) nums.push(n);
+            }
+            return nums;
+        },
+        top: 5, isDigit: false
+    },
+    pick10: {
+        url: 'https://data.ny.gov/resource/bycu-cw7c.json?$limit=50&$order=draw_date+DESC',
+        extract: function(r) {
+            var raw = r.winning_numbers ? r.winning_numbers.trim() : '';
+            var tokens = raw.split(' ');
+            var nums = [];
+            for (var i = 0; i < tokens.length; i++) {
+                var n = parseInt(tokens[i], 10); if (!isNaN(n)) nums.push(n);
+            }
+            return nums;
+        },
+        top: 5, isDigit: false
+    },
+    win4: {
+        url: 'https://data.ny.gov/resource/hj4u-8nyt.json?$limit=100&$order=draw_date+DESC',
+        extract: function(r) {
+            var nums = [];
+            var keys = Object.keys(r);
+            for (var k = 0; k < keys.length; k++) {
+                var key = keys[k];
+                if (key === 'draw_date' || key.charAt(0) === ':') continue;
+                var val = (r[key] || '').toString().replace(/\s/g, '');
+                if (/^\d{3,4}$/.test(val)) {
+                    for (var i = 0; i < val.length; i++) { nums.push(parseInt(val[i], 10)); }
+                }
+            }
+            return nums;
+        },
+        top: 4, isDigit: true
+    },
+    numbers: {
+        url: 'https://data.ny.gov/resource/hsys-3def.json?$limit=100&$order=draw_date+DESC',
+        extract: function(r) {
+            var nums = [];
+            var keys = Object.keys(r);
+            for (var k = 0; k < keys.length; k++) {
+                var key = keys[k];
+                if (key === 'draw_date' || key.charAt(0) === ':') continue;
+                if (key.indexOf('win') !== -1) continue;
+                var val = (r[key] || '').toString().replace(/\s/g, '');
+                if (/^\d{3}$/.test(val)) {
+                    for (var i = 0; i < val.length; i++) { nums.push(parseInt(val[i], 10)); }
+                }
+            }
+            return nums;
+        },
+        top: 3, isDigit: true
+    }
+};
+
+function getTopNumbers(freq, topN) {
+    var arr = [];
+    var keys = Object.keys(freq);
+    for (var i = 0; i < keys.length; i++) {
+        arr.push({ n: parseInt(keys[i], 10), count: freq[keys[i]] });
+    }
+    arr.sort(function(a, b) { return b.count - a.count || a.n - b.n; });
+    return arr.slice(0, topN);
+}
+
+/* Cold Numbers: lowest frequency first — no extra API call, reuses same freq data */
+function getColdNumbers(freq, topN) {
+    var arr = [];
+    var keys = Object.keys(freq);
+    for (var i = 0; i < keys.length; i++) {
+        arr.push({ n: parseInt(keys[i], 10), count: freq[keys[i]] });
+    }
+    arr.sort(function(a, b) { return a.count - b.count || a.n - b.n; });
+    return arr.slice(0, topN);
+}
+
+function renderHotBalls(gameId, topNums, isDigit) {
+    var container = document.getElementById(gameId + '-hot-balls');
+    if (!container) return;
+    if (!topNums || topNums.length === 0) {
+        container.innerHTML = '<div class="winning-error">No data</div>';
+        return;
+    }
+    container.innerHTML = '';
+    for (var i = 0; i < topNums.length; i++) {
+        var item = topNums[i];
+        var wrap = document.createElement('div');
+        wrap.style.cssText = 'position:relative;display:inline-flex;flex-direction:column;align-items:center;gap:3px;';
+        var ball = document.createElement('div');
+        ball.className = 'ball-hot' + (isDigit ? ' ball-hot-zero' : '');
+        ball.textContent = item.n;
+        var rank = document.createElement('div');
+        rank.className = 'ball-hot-rank';
+        rank.textContent = i + 1;
+        ball.appendChild(rank);
+        var cnt = document.createElement('div');
+        cnt.style.cssText = 'font-size:10px;color:var(--muted);font-weight:500;';
+        cnt.textContent = item.count + 'x';
+        wrap.appendChild(ball);
+        wrap.appendChild(cnt);
+        container.appendChild(wrap);
+    }
+}
+
+function renderColdBalls(gameId, coldNums, isDigit) {
+    var container = document.getElementById(gameId + '-cold-balls');
+    if (!container) return;
+    if (!coldNums || coldNums.length === 0) {
+        container.innerHTML = '<div class="winning-error">No data</div>';
+        return;
+    }
+    container.innerHTML = '';
+    for (var i = 0; i < coldNums.length; i++) {
+        var item = coldNums[i];
+        var wrap = document.createElement('div');
+        wrap.style.cssText = 'position:relative;display:inline-flex;flex-direction:column;align-items:center;gap:3px;';
+        var ball = document.createElement('div');
+        ball.className = 'ball-cold' + (isDigit ? ' ball-cold-zero' : '');
+        ball.textContent = item.n;
+        var rank = document.createElement('div');
+        rank.className = 'ball-cold-rank';
+        rank.textContent = i + 1;
+        ball.appendChild(rank);
+        var cnt = document.createElement('div');
+        cnt.style.cssText = 'font-size:10px;color:var(--muted);font-weight:500;';
+        cnt.textContent = item.count + 'x';
+        wrap.appendChild(ball);
+        wrap.appendChild(cnt);
+        container.appendChild(wrap);
+    }
+}
+
+function fetchHotNumbers(gameId) {
+    var cfg = HOT_CFG[gameId];
+    if (!cfg) return;
+    var container     = document.getElementById(gameId + '-hot-balls');
+    var coldContainer = document.getElementById(gameId + '-cold-balls');
+    if (cfg.useOfficialSite) {
+        if (container)     container.innerHTML     = makeOfficialSiteHTML(cfg.officialUrl, cfg.officialLabel);
+        if (coldContainer) coldContainer.innerHTML = makeOfficialSiteHTML(cfg.officialUrl, cfg.officialLabel);
+        return;
+    }
+    if (container)     container.innerHTML     = '<div class="winning-loading"><span class="spin"></span>Loading...</div>';
+    if (coldContainer) coldContainer.innerHTML = '<div class="winning-loading"><span class="spin"></span>Loading...</div>';
+    fetch(cfg.url)
+        .then(function(resp) { return resp.json(); })
+        .then(function(data) {
+            if (!data || data.length === 0) {
+                if (container)     container.innerHTML     = '<div class="winning-error">No data</div>';
+                if (coldContainer) coldContainer.innerHTML = '<div class="winning-error">No data</div>';
+                return;
+            }
+            /* Build frequency map once — reused for both hot and cold */
+            var freq = {};
+            for (var i = 0; i < data.length; i++) {
+                var nums = cfg.extract(data[i]);
+                for (var j = 0; j < nums.length; j++) {
+                    var key = nums[j];
+                    freq[key] = (freq[key] || 0) + 1;
+                }
+            }
+            var top  = getTopNumbers(freq, cfg.top);
+            var cold = getColdNumbers(freq, cfg.top);
+            renderHotBalls(gameId, top, cfg.isDigit);
+            renderColdBalls(gameId, cold, cfg.isDigit);
+        })
+        .catch(function() {
+            if (container)     container.innerHTML     = '<div class="winning-error">Could not load</div>';
+            if (coldContainer) coldContainer.innerHTML = '<div class="winning-error">Could not load</div>';
+        });
+}
+
+/* ══ [Phase 1.4] NAVIGATION with History API (Android back button fix) ══ */
+function goHome() {
+    document.getElementById('game-screen').classList.remove('active');
+    document.getElementById('saved-screen').classList.remove('active');
+    document.getElementById('privacy-screen').classList.remove('active');
+    document.getElementById('terms-screen').classList.remove('active');
+    document.getElementById('home-screen').classList.add('active');
+    window.scrollTo(0, 0);
+}
+
+/* [Phase 2] Privacy Policy screen */
+function openPrivacy() {
+    document.getElementById('home-screen').classList.remove('active');
+    document.getElementById('game-screen').classList.remove('active');
+    document.getElementById('saved-screen').classList.remove('active');
+    document.getElementById('terms-screen').classList.remove('active');
+    document.getElementById('privacy-screen').classList.add('active');
+    window.scrollTo(0, 0);
+    window.history.pushState({ screen: 'privacy' }, '', '#privacy');
+}
+
+/* [Phase 2] Terms of Service screen */
+function openTerms() {
+    document.getElementById('home-screen').classList.remove('active');
+    document.getElementById('game-screen').classList.remove('active');
+    document.getElementById('saved-screen').classList.remove('active');
+    document.getElementById('privacy-screen').classList.remove('active');
+    document.getElementById('terms-screen').classList.add('active');
+    window.scrollTo(0, 0);
+    window.history.pushState({ screen: 'terms' }, '', '#terms');
+}
+
+function openGame(gameId) {
+    document.getElementById('home-screen').classList.remove('active');
+    document.getElementById('saved-screen').classList.remove('active');
+    document.getElementById('game-screen').classList.add('active');
+    switchTab(gameId);
+    window.scrollTo(0, 0);
+    /* [Phase 1.4] push state so Android back button returns to previous screen */
+    window.history.pushState({ screen: 'game', gameId: gameId }, '', '#game-' + gameId);
+}
+
+function switchTab(gameId) {
+    var tabs  = document.querySelectorAll('.tab-btn');
+    var cards = document.querySelectorAll('.game-card');
+    for (var i = 0; i < tabs.length; i++)  tabs[i].classList.remove('active');
+    for (var i = 0; i < cards.length; i++) cards[i].classList.remove('active');
+    for (var i = 0; i < tabs.length; i++) {
+        if (tabs[i].getAttribute('data-game') === gameId) {
+            tabs[i].classList.add('active');
+            tabs[i].scrollIntoView({ behavior:'smooth', block:'nearest', inline:'center' });
+            break;
+        }
+    }
+    var card = document.getElementById(gameId + '-card');
+    if (card) card.classList.add('active');
+    var txt = document.getElementById('topbar-draw-text');
+    if (txt) txt.innerHTML = '<strong>' + getNextDraw(gameId) + '</strong>';
+    /* fetch winning numbers + hot numbers once per session (unless cache expired) */
+    var cached = getCachedWinning(gameId);
+    if (!cached) {
+        fetchedGames[gameId] = false; /* force re-fetch if cache expired */
+    }
+    if (!fetchedGames[gameId]) {
+        fetchedGames[gameId] = true;
+        fetchWinningNumbers(gameId);
+    }
+    if (!fetchedHot[gameId]) {
+        fetchedHot[gameId] = true;
+        fetchHotNumbers(gameId);
+    }
+}
+
+var tabButtons = document.querySelectorAll('.tab-btn');
+for (var t = 0; t < tabButtons.length; t++) {
+    tabButtons[t].addEventListener('click', function() { switchTab(this.getAttribute('data-game')); });
+}
+
+/* [Phase 1.4] Handle browser/Android back button via popstate */
+window.addEventListener('popstate', function(e) {
+    if (e.state && e.state.screen === 'game') {
+        /* going back to a game — just show game screen without pushing new state */
+        document.getElementById('home-screen').classList.remove('active');
+        document.getElementById('saved-screen').classList.remove('active');
+        document.getElementById('game-screen').classList.add('active');
+        if (e.state.gameId) switchTab(e.state.gameId);
+        window.scrollTo(0, 0);
+    } else if (e.state && e.state.screen === 'saved') {
+        document.getElementById('home-screen').classList.remove('active');
+        document.getElementById('game-screen').classList.remove('active');
+        document.getElementById('saved-screen').classList.add('active');
+        renderSavedScreen();
+        window.scrollTo(0, 0);
+    } else if (e.state && e.state.screen === 'privacy') {
+        ['home-screen','game-screen','saved-screen','terms-screen'].forEach(function(id){
+            document.getElementById(id).classList.remove('active');
+        });
+        document.getElementById('privacy-screen').classList.add('active');
+        window.scrollTo(0, 0);
+    } else if (e.state && e.state.screen === 'terms') {
+        ['home-screen','game-screen','saved-screen','privacy-screen'].forEach(function(id){
+            document.getElementById(id).classList.remove('active');
+        });
+        document.getElementById('terms-screen').classList.add('active');
+        window.scrollTo(0, 0);
+    } else {
+        /* default: go to home */
+        document.getElementById('game-screen').classList.remove('active');
+        document.getElementById('saved-screen').classList.remove('active');
+        document.getElementById('privacy-screen').classList.remove('active');
+        document.getElementById('terms-screen').classList.remove('active');
+        document.getElementById('home-screen').classList.add('active');
+        window.scrollTo(0, 0);
+    }
+});
+
+/* ══ UTILS ══ */
+function getRandomNumbers(min, max, count) {
+    var numbers = [];
+    while (numbers.length < count) {
+        var num = Math.floor(Math.random() * (max - min + 1)) + min;
+        if (numbers.indexOf(num) === -1) numbers.push(num);
+    }
+    return numbers.sort(function(a, b) { return a - b; });
+}
+function getRandomNumber(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+/* ══ RENDER GENERATED NUMBERS ══ */
+function displayResults(gameId, sets, bonusClass) {
+    var container = document.getElementById(gameId + '-results');
+    container.innerHTML = '';
+    var bClass = bonusClass || 'ball-bonus';
+    for (var i = 0; i < sets.length; i++) {
+        var set = sets[i];
+        var setDiv = document.createElement('div');
+        setDiv.className = 'result-set';
+        setDiv.style.animationDelay = (i * 0.05) + 's';
+        var label = document.createElement('div');
+        label.className = 'set-label';
+        label.textContent = 'Set ' + (i + 1);
+        setDiv.appendChild(label);
+        var row = document.createElement('div');
+        row.className = 'balls-row';
+        var addedSep = false;
+        for (var j = 0; j < set.length; j++) {
+            var item = set[j];
+            if (item.bonus && !addedSep) {
+                var sep = document.createElement('div');
+                sep.className = 'ball-sep'; sep.textContent = '+';
+                row.appendChild(sep); addedSep = true;
+            }
+            var ball = document.createElement('div');
+            if (item.bonus)      ball.className = 'ball ' + bClass;
+            else if (item.zero)  ball.className = 'ball ball-zero';
+            else                 ball.className = 'ball ball-main';
+            ball.textContent = item.number;
+            row.appendChild(ball);
+        }
+        setDiv.appendChild(row);
+        /* Action buttons row */
+        var btnRow = document.createElement('div');
+        btnRow.style.cssText = 'display:flex;align-items:center;flex-wrap:wrap;';
+        /* Save button */
+        var saveBtn = document.createElement('button');
+        saveBtn.className = 'save-btn';
+        saveBtn.innerHTML = '&#11088; Save';
+        (function(gId, s, btn) {
+            btn.addEventListener('click', function() {
+                saveNumbers(gId, s);
+                btn.className = 'save-btn saved';
+                btn.innerHTML = '&#9989; Saved!';
+            });
+        })(gameId, set, saveBtn);
+        btnRow.appendChild(saveBtn);
+        /* Share button */
+        var shareBtn = document.createElement('button');
+        shareBtn.className = 'share-btn';
+        shareBtn.innerHTML = '&#128257; Share';
+        (function(gId, s, btn) {
+            btn.addEventListener('click', function() { shareSet(gId, s, btn); });
+        })(gameId, set, shareBtn);
+        btnRow.appendChild(shareBtn);
+        setDiv.appendChild(btnRow);
+        container.appendChild(setDiv);
+    }
+}
+
+/* ══ SHARE ══ */
+var GAME_EMOJI = {
+    powerball:'⚡', mega:'✨', lotto:'🎱', millionaire:'💎',
+    quickdraw:'🎰', take5:'🎯', pick10:'🔟', win4:'4️⃣', numbers:'🔢'
+};
+
+function formatSetText(gameId, set) {
+    var gameName = GAME_LABELS[gameId] || gameId;
+    var emoji    = GAME_EMOJI[gameId]  || '🎲';
+    var mainNums = [];
+    var bonusNum = null;
+    for (var i = 0; i < set.length; i++) {
+        if (set[i].bonus) bonusNum = set[i].number;
+        else mainNums.push(set[i].number);
+    }
+    var line = mainNums.join('  ');
+    if (bonusNum !== null) line += '  +  ' + bonusNum;
+    return emoji + ' ' + gameName + '\n'
+         + line + '\n'
+         + '🍀 Generated with LuckyPick';
+}
+
+function showToast(msg) {
+    var old = document.getElementById('lp-toast');
+    if (old) old.parentNode.removeChild(old);
+    var t = document.createElement('div');
+    t.id = 'lp-toast';
+    t.className = 'toast';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(function() {
+        if (t.parentNode) t.parentNode.removeChild(t);
+    }, 2200);
+}
+
+function shareSet(gameId, set, btn) {
+    var text = formatSetText(gameId, set);
+    if (navigator.share) {
+        navigator.share({ title: 'My Lucky Numbers', text: text }).catch(function() {});
+        return;
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function() {
+            btn.className = 'share-btn copied';
+            btn.innerHTML = '&#9989; Copied!';
+            showToast('📋 Copied to clipboard!');
+            setTimeout(function() {
+                btn.className = 'share-btn';
+                btn.innerHTML = '&#128257; Share';
+            }, 2000);
+        }).catch(function() { showToast('Could not copy — try manually'); });
+        return;
+    }
+    try {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.cssText = 'position:fixed;left:-9999px;top:-9999px;';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        btn.className = 'share-btn copied';
+        btn.innerHTML = '&#9989; Copied!';
+        showToast('📋 Copied to clipboard!');
+        setTimeout(function() {
+            btn.className = 'share-btn';
+            btn.innerHTML = '&#128257; Share';
+        }, 2000);
+    } catch(e) {
+        showToast('Copy not supported — select text manually');
+    }
+}
+
+/* ══ GENERATORS ══ */
+function generatePowerball() {
+    if (navigator && navigator.vibrate) { navigator.vibrate(30); }
+    var sets = [];
+    for (var i = 0; i < 5; i++) {
+        var main = getRandomNumbers(1,69,5); var pb = getRandomNumber(1,26); var set = [];
+        for (var j = 0; j < main.length; j++) set.push({number:main[j],bonus:false});
+        set.push({number:pb,bonus:true}); sets.push(set);
+    }
+    displayResults('powerball', sets, 'ball-bonus');
+}
+function generateMega() {
+    if (navigator && navigator.vibrate) { navigator.vibrate(30); }
+    var sets = [];
+    for (var i = 0; i < 5; i++) {
+        var main = getRandomNumbers(1,70,5); var mb = getRandomNumber(1,25); var set = [];
+        for (var j = 0; j < main.length; j++) set.push({number:main[j],bonus:false});
+        set.push({number:mb,bonus:true}); sets.push(set);
+    }
+    displayResults('mega', sets, 'ball-bonus-gold');
+}
+function generateLotto() {
+    if (navigator && navigator.vibrate) { navigator.vibrate(30); }
+    var sets = [];
+    for (var i = 0; i < 5; i++) {
+        var main = getRandomNumbers(1,59,6); var bb = getRandomNumber(1,59); var set = [];
+        for (var j = 0; j < main.length; j++) set.push({number:main[j],bonus:false});
+        set.push({number:bb,bonus:true}); sets.push(set);
+    }
+    displayResults('lotto', sets, 'ball-bonus-green');
+}
+function generateMillionaire() {
+    if (navigator && navigator.vibrate) { navigator.vibrate(30); }
+    var sets = [];
+    for (var i = 0; i < 5; i++) {
+        var main = getRandomNumbers(1,58,5); var mb = getRandomNumber(1,5); var set = [];
+        for (var j = 0; j < main.length; j++) set.push({number:main[j],bonus:false});
+        set.push({number:mb,bonus:true}); sets.push(set);
+    }
+    displayResults('millionaire', sets, 'ball-bonus-gold');
+}
+function generateQuickDraw() {
+    if (navigator && navigator.vibrate) { navigator.vibrate(30); }
+    var sets = [];
+    for (var i = 0; i < 5; i++) {
+        var nums = getRandomNumbers(1,80,10); var set = [];
+        for (var j = 0; j < nums.length; j++) set.push({number:nums[j],bonus:false});
+        sets.push(set);
+    }
+    displayResults('quickdraw', sets);
+}
+function generateTake5() {
+    if (navigator && navigator.vibrate) { navigator.vibrate(30); }
+    var sets = [];
+    for (var i = 0; i < 5; i++) {
+        var nums = getRandomNumbers(1,39,5); var set = [];
+        for (var j = 0; j < nums.length; j++) set.push({number:nums[j],bonus:false});
+        sets.push(set);
+    }
+    displayResults('take5', sets);
+}
+function generatePick10() {
+    if (navigator && navigator.vibrate) { navigator.vibrate(30); }
+    var sets = [];
+    for (var i = 0; i < 5; i++) {
+        var nums = getRandomNumbers(1,80,10); var set = [];
+        for (var j = 0; j < nums.length; j++) set.push({number:nums[j],bonus:false});
+        sets.push(set);
+    }
+    displayResults('pick10', sets);
+}
+function generateWin4() {
+    if (navigator && navigator.vibrate) { navigator.vibrate(30); }
+    var sets = [];
+    for (var i = 0; i < 5; i++) {
+        var set = [];
+        for (var k = 0; k < 4; k++) set.push({number:getRandomNumber(0,9),bonus:false,zero:true});
+        sets.push(set);
+    }
+    displayResults('win4', sets);
+}
+function generateNumbers() {
+    if (navigator && navigator.vibrate) { navigator.vibrate(30); }
+    var sets = [];
+    for (var i = 0; i < 5; i++) {
+        var set = [];
+        for (var k = 0; k < 3; k++) set.push({number:getRandomNumber(0,9),bonus:false,zero:true});
+        sets.push(set);
+    }
+    displayResults('numbers', sets);
+}
+
+/* ══ MY NUMBERS — STORAGE ══ */
+var GAME_LABELS = {
+    powerball:'Powerball', mega:'Mega Millions', lotto:'NY Lotto',
+    millionaire:'Millionaire for Life', quickdraw:'Quick Draw',
+    take5:'Take 5', pick10:'Pick 10', win4:'Win 4', numbers:'Numbers'
+};
+
+/* ══ [Phase 1.3] Safe localStorage wrappers ══
+   Handles Safari private mode and quota-exceeded errors gracefully.
+   Falls back to in-memory storage so app stays functional. */
+var _memStorage = {};
+
+function safeGetItem(key) {
+    try {
+        return localStorage.getItem(key);
+    } catch(e) {
+        console.log('[Storage] Read failed, using memory fallback');
+        return _memStorage[key] !== undefined ? _memStorage[key] : null;
+    }
+}
+
+function safeSetItem(key, value) {
+    try {
+        localStorage.setItem(key, value);
+        return true;
+    } catch(e) {
+        console.log('[Storage] Write failed (private mode / quota?), using memory fallback');
+        _memStorage[key] = value;
+        return false;
+    }
+}
+
+function safeRemoveItem(key) {
+    try {
+        localStorage.removeItem(key);
+        return true;
+    } catch(e) {
+        console.log('[Storage] Remove failed, clearing memory fallback');
+        delete _memStorage[key];
+        return false;
+    }
+}
+
+function getSavedNumbers() {
+    try {
+        var raw = safeGetItem('luckyPick_saved');
+        return raw ? JSON.parse(raw) : [];
+    } catch(e) { return []; }
+}
+
+function setSavedNumbers(arr) {
+    var ok = safeSetItem('luckyPick_saved', JSON.stringify(arr));
+    if (!ok) showToast('⚠️ Saved in memory only (private mode)');
+}
+
+function saveNumbers(gameId, set) {
+    var arr = getSavedNumbers();
+    var now = new Date();
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var dateStr = months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear()
+                + ' ' + formatTime12(now);
+    arr.unshift({ id: now.getTime(), gameId: gameId, date: dateStr, set: set });
+    if (arr.length > 50) arr = arr.slice(0, 50);
+    setSavedNumbers(arr);
+    updateSavedCountBadges();
+}
+
+function deleteSaved(id) {
+    var arr = getSavedNumbers().filter(function(e){ return e.id !== id; });
+    setSavedNumbers(arr);
+    updateSavedCountBadges();
+    renderSavedScreen();
+}
+
+/* [Phase 1.3] clearAllSaved uses custom modal instead of window.confirm */
+function clearAllSaved() {
+    var overlay = document.getElementById('confirm-overlay');
+    if (overlay) overlay.classList.add('visible');
+}
+
+function formatTime12(d) {
+    var h = d.getHours(), m = d.getMinutes();
+    var ampm = h >= 12 ? 'PM' : 'AM';
+    return (h%12||12) + ':' + (m<10?'0':'')+m + ' ' + ampm;
+}
+
+function updateSavedCountBadges() {
+    var count = getSavedNumbers().length;
+    var badges = [
+        document.getElementById('home-saved-count'),
+        document.getElementById('saved-count-badge')
+    ];
+    for (var i = 0; i < badges.length; i++) {
+        if (!badges[i]) continue;
+        if (count > 0) {
+            badges[i].textContent = count;
+            badges[i].style.display = 'inline-flex';
+        } else {
+            badges[i].style.display = 'none';
+        }
+    }
+    var clearBtn = document.getElementById('clear-all-btn');
+    if (clearBtn) clearBtn.style.display = count > 0 ? 'inline-flex' : 'none';
+}
+
+/* ══ COMPARE SAVED SET vs WINNING ══ */
+function compareSet(savedSet, winningBalls) {
+    var savedMain  = [];
+    var savedBonus = null;
+    for (var i = 0; i < savedSet.length; i++) {
+        if (savedSet[i].bonus) savedBonus = savedSet[i].number;
+        else savedMain.push(savedSet[i].number);
+    }
+    var winMain  = [];
+    var winBonus = null;
+    for (var i = 0; i < winningBalls.length; i++) {
+        if (winningBalls[i].bonus) winBonus = parseInt(winningBalls[i].n, 10);
+        else winMain.push(parseInt(winningBalls[i].n, 10));
+    }
+    var mainMatches = 0;
+    var matchedNums = [];
+    for (var i = 0; i < savedMain.length; i++) {
+        if (winMain.indexOf(savedMain[i]) !== -1) { mainMatches++; matchedNums.push(savedMain[i]); }
+    }
+    var bonusMatch = (savedBonus !== null && winBonus !== null && savedBonus === winBonus);
+    if (bonusMatch) matchedNums.push(savedBonus);
+    return { mainMatches: mainMatches, bonusMatch: bonusMatch, matchedNums: matchedNums,
+             total: mainMatches + (bonusMatch ? 1 : 0) };
+}
+
+function matchLabel(result, gameId) {
+    var t = result.total;
+    if (t === 0) return { cls:'match-0', text:'No matches' };
+    if (result.bonusMatch && result.mainMatches === 0) return { cls:'match-1', text:'Bonus ball only' };
+    var label = result.mainMatches + ' number' + (result.mainMatches > 1 ? 's' : '') + ' matched';
+    if (result.bonusMatch) label += ' + bonus ball!';
+    if (t <= 2) return { cls:'match-2', text:label };
+    if (t === 3) return { cls:'match-3', text:'🎉 ' + label };
+    return { cls:'match-5', text:'🏆 ' + label + ' — Check ticket!' };
+}
+
+/* ══ RENDER MY NUMBERS SCREEN ══ */
+function renderSavedScreen() {
+    var list = document.getElementById('saved-list');
+    if (!list) return;
+    var arr = getSavedNumbers();
+    list.innerHTML = '';
+
+    if (arr.length === 0) {
+        list.innerHTML = '<div class="saved-empty">'
+            + '<div class="saved-empty-icon">⭐</div>'
+            + '<h3>No saved numbers yet</h3>'
+            + '<p>Generate numbers on any game screen,<br>then tap <strong>⭐ Save this set</strong> to save your picks here.</p>'
+            + '</div>';
+        return;
+    }
+
+    for (var i = 0; i < arr.length; i++) {
+        var entry = arr[i];
+        var card = document.createElement('div');
+        card.className = 'saved-card';
+        var header = document.createElement('div');
+        header.className = 'saved-card-header';
+        var meta = document.createElement('div');
+        meta.className = 'saved-card-meta';
+        var gameTag = document.createElement('span');
+        gameTag.className = 'saved-game-tag';
+        gameTag.textContent = GAME_LABELS[entry.gameId] || entry.gameId;
+        var dateSpan = document.createElement('span');
+        dateSpan.className = 'saved-date';
+        dateSpan.textContent = 'Saved ' + entry.date;
+        meta.appendChild(gameTag);
+        meta.appendChild(dateSpan);
+        var delBtn = document.createElement('button');
+        delBtn.className = 'delete-btn';
+        delBtn.innerHTML = '✕';
+        delBtn.title = 'Delete';
+        (function(eid){ delBtn.addEventListener('click', function(){ deleteSaved(eid); }); })(entry.id);
+        header.appendChild(meta);
+        header.appendChild(delBtn);
+        card.appendChild(header);
+
+        var body = document.createElement('div');
+        body.className = 'saved-card-body';
+        var ballsRow = document.createElement('div');
+        ballsRow.className = 'saved-balls-row';
+
+        /* [Phase 1.5] use getCachedWinning to respect TTL */
+        var winning = getCachedWinning(entry.gameId) || null;
+        var compResult = winning ? compareSet(entry.set, winning) : null;
+
+        var addedSep = false;
+        for (var j = 0; j < entry.set.length; j++) {
+            var item = entry.set[j];
+            if (item.bonus && !addedSep) {
+                var sep = document.createElement('div');
+                sep.className = 'ball-sep'; sep.textContent = '+';
+                ballsRow.appendChild(sep); addedSep = true;
+            }
+            var ball = document.createElement('div');
+            var bClass = item.bonus ? 'ball-w ball-w-bonus' : (item.zero ? 'ball-w ball-w-zero' : 'ball-w ball-w-main');
+            if (compResult && compResult.matchedNums.indexOf(item.number) !== -1) {
+                bClass += ' ball-matched';
+            }
+            ball.className = bClass;
+            ball.textContent = item.number;
+            ballsRow.appendChild(ball);
+        }
+        body.appendChild(ballsRow);
+
+        var matchDiv = document.createElement('div');
+        if (!winning) {
+            matchDiv.className = 'match-loading';
+            matchDiv.textContent = 'Loading latest results for comparison…';
+        } else {
+            var ml = matchLabel(compResult, entry.gameId);
+            matchDiv.className = 'match-result ' + ml.cls;
+            matchDiv.innerHTML = ml.text;
+        }
+        body.appendChild(matchDiv);
+        card.appendChild(body);
+        list.appendChild(card);
+    }
+}
+
+/* ══ NAVIGATION — MY NUMBERS ══ */
+function openSaved() {
+    document.getElementById('home-screen').classList.remove('active');
+    document.getElementById('game-screen').classList.remove('active');
+    document.getElementById('saved-screen').classList.add('active');
+    window.scrollTo(0, 0);
+    /* [Phase 1.4] push state for back button */
+    window.history.pushState({ screen: 'saved' }, '', '#saved');
+    renderSavedScreen();
+    var arr = getSavedNumbers();
+    var seenGames = {};
+    for (var i = 0; i < arr.length; i++) {
+        var gId = arr[i].gameId;
+        if (!seenGames[gId]) {
+            seenGames[gId] = true;
+            /* [Phase 1.5] only fetch if cache is empty or expired */
+            if (!getCachedWinning(gId) && API_CFG[gId] && !API_CFG[gId].useOfficialSite) {
+                fetchWinningNumbersForCompare(gId);
+            }
+        }
+    }
+}
+
+/* Lean fetch just for comparison (doesn't touch DOM winning balls/date) */
+function fetchWinningNumbersForCompare(gameId) {
+    var cfg = API_CFG[gameId];
+    if (!cfg || cfg.useOfficialSite) return;
+    fetch(cfg.url)
+        .then(function(resp) { return resp.json(); })
+        .then(function(data) {
+            if (!data || data.length === 0) return;
+            var parsed = cfg.parse(data[0]);
+            /* [Phase 1.5] cache with TTL */
+            cacheWinning(gameId, parsed.balls);
+            if (document.getElementById('saved-screen').classList.contains('active')) {
+                renderSavedScreen();
+            }
+        })
+        .catch(function(){});
+}
+
+/* ══ INIT ══ */
+window.addEventListener('load', function() {
+    /* [Phase 1.4] Set initial history state so back button works from first load */
+    window.history.replaceState({ screen: 'home' }, '', window.location.pathname);
+
+    /* [Phase 2] Age Gate initialization — runs before anything else */
+    var ageGateOverlay = document.getElementById('age-gate-overlay');
+    var ageBlocked     = document.getElementById('age-blocked');
+    var ageYesBtn      = document.getElementById('age-gate-yes-btn');
+    var ageNoBtn       = document.getElementById('age-gate-no-btn');
+
+    if (!safeGetItem('lp_age_verified')) {
+        if (ageGateOverlay) ageGateOverlay.classList.add('visible');
+    }
+    if (ageYesBtn) {
+        ageYesBtn.addEventListener('click', function() {
+            safeSetItem('lp_age_verified', '1');
+            if (ageGateOverlay) ageGateOverlay.classList.remove('visible');
+        });
+    }
+    if (ageNoBtn) {
+        ageNoBtn.addEventListener('click', function() {
+            if (ageGateOverlay) ageGateOverlay.classList.remove('visible');
+            if (ageBlocked) ageBlocked.classList.add('visible');
+        });
+    }
+
+    updateClock();
+    updateNextDraws();
+    updateSavedCountBadges();
+    setInterval(updateClock, 1000);
+    setInterval(updateNextDraws, 60000);
+
+    /* [Phase 1.3] Custom confirm modal wiring */
+    var confirmOverlay = document.getElementById('confirm-overlay');
+    var confirmOkBtn   = document.getElementById('confirm-ok-btn');
+    var confirmCancel  = document.getElementById('confirm-cancel-btn');
+
+    if (confirmOkBtn) {
+        confirmOkBtn.addEventListener('click', function() {
+            setSavedNumbers([]);
+            updateSavedCountBadges();
+            renderSavedScreen();
+            if (confirmOverlay) confirmOverlay.classList.remove('visible');
+            showToast('🗑️ All numbers cleared');
+        });
+    }
+    if (confirmCancel) {
+        confirmCancel.addEventListener('click', function() {
+            if (confirmOverlay) confirmOverlay.classList.remove('visible');
+        });
+    }
+    /* Close modal on overlay background tap */
+    if (confirmOverlay) {
+        confirmOverlay.addEventListener('click', function(e) {
+            if (e.target === confirmOverlay) confirmOverlay.classList.remove('visible');
+        });
+    }
+
+    /* ── Phase 3: iOS 홈화면 추가 안내 카드 ── */
+    var iosCard    = document.getElementById('ios-install-card');
+    var iosDismiss = document.getElementById('ios-install-dismiss');
+    var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    var isStandalone = window.matchMedia('(display-mode: standalone)').matches
+                    || window.navigator.standalone === true;
+    if (isIOS && !isStandalone && !safeGetItem('lp_ios_dismissed')) {
+        if (iosCard) iosCard.classList.add('visible');
+    }
+    if (iosDismiss) {
+        iosDismiss.addEventListener('click', function() {
+            if (iosCard) iosCard.classList.remove('visible');
+            safeSetItem('lp_ios_dismissed', '1');
+        });
+    }
+
+    /* ── Service Worker registration ── */
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./service-worker.js')
+            .then(function(reg) {
+                console.log('[SW] Registered. Scope:', reg.scope);
+            })
+            .catch(function(err) {
+                console.log('[SW] Registration failed:', err);
+            });
+    }
+
+    /* ── Offline / Online detection ── */
+    var offlineBanner = document.getElementById('offline-banner');
+    function updateOnlineStatus() {
+        if (!navigator.onLine) {
+            offlineBanner.classList.add('visible');
+        } else {
+            offlineBanner.classList.remove('visible');
+        }
+    }
+    window.addEventListener('online',  updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+    updateOnlineStatus();
+
+    /* ── PWA Install prompt ── */
+    var deferredPrompt = null;
+    var installBanner  = document.getElementById('install-banner');
+    var installBtn     = document.getElementById('install-btn');
+    var installDismiss = document.getElementById('install-dismiss');
+
+    window.addEventListener('beforeinstallprompt', function(e) {
+        e.preventDefault();
+        deferredPrompt = e;
+        /* [Phase 1.3] use safeGetItem */
+        if (!safeGetItem('lp_install_dismissed')) {
+            installBanner.classList.add('visible');
+        }
+    });
+
+    if (installBtn) {
+        installBtn.addEventListener('click', function() {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then(function(choice) {
+                deferredPrompt = null;
+                installBanner.classList.remove('visible');
+                if (choice.outcome === 'accepted') {
+                    showToast('🎉 LuckyPick installed!');
+                }
+            });
+        });
+    }
+
+    if (installDismiss) {
+        installDismiss.addEventListener('click', function() {
+            installBanner.classList.remove('visible');
+            /* [Phase 1.3] use safeSetItem */
+            safeSetItem('lp_install_dismissed', '1');
+        });
+    }
+
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+        if (installBanner) installBanner.classList.remove('visible');
+    }
+});
+</script>
+</body>
+</html>
