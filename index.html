@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LuckyPick — NY Lottery Numbers</title>
+    <title>PickStar — US Lottery Numbers</title>
 
     <!-- PWA -->
     <link rel="manifest" href="manifest.json">
@@ -11,15 +11,15 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="LuckyPick">
+    <meta name="apple-mobile-web-app-title" content="PickStar">
     <link rel="apple-touch-icon" href="icon-192.png">
 
     <!-- SEO / Social -->
-    <meta name="description" content="Generate lucky numbers for NY Lottery games. Unofficial app. For entertainment only.">
-    <meta property="og:title" content="LuckyPick — NY Lottery Number Generator">
-    <meta property="og:description" content="Generate lucky numbers for Powerball, Mega Millions, NY Lotto and more.">
+    <meta name="description" content="Generate lucky numbers for US Lottery games. Unofficial app. For entertainment only.">
+    <meta property="og:title" content="PickStar — US Lottery Number Generator">
+    <meta property="og:description" content="Generate lucky numbers for Powerball, Mega Millions, and more US lottery games.">
     <meta property="og:type" content="website">
-    <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%228%22%20fill%3D%22%230a0e1a%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2254%25%22%20font-size%3D%2220%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3E%F0%9F%8E%B1%3C%2Ftext%3E%3C%2Fsvg%3E" type="image/svg+xml">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%228%22%20fill%3D%22%230a0e1a%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2254%25%22%20font-size%3D%2220%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3E%E2%AD%90%3C%2Ftext%3E%3C%2Fsvg%3E" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
@@ -41,10 +41,49 @@
         body::before {
             content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
             background-image:
-                radial-gradient(1px 1px at 15% 25%,rgba(255,255,255,0.15) 0%,transparent 100%),
-                radial-gradient(1px 1px at 55% 10%,rgba(255,255,255,0.10) 0%,transparent 100%),
-                radial-gradient(1px 1px at 85% 65%,rgba(255,255,255,0.09) 0%,transparent 100%),
                 radial-gradient(700px 500px at 50% 0%,rgba(59,108,250,0.06) 0%,transparent 100%);
+        }
+
+        /* ── PickStar: 별 애니메이션 ── */
+        #star-canvas {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .star {
+            position: absolute;
+            border-radius: 50%;
+            background: #fff;
+            animation: starTwinkle linear infinite;
+        }
+        @keyframes starTwinkle {
+            0%   { opacity: var(--s-min); transform: scale(1);    }
+            50%  { opacity: var(--s-max); transform: scale(1.35); }
+            100% { opacity: var(--s-min); transform: scale(1);    }
+        }
+        /* 흘러내리는 별 (shooting star) */
+        .shooting-star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 0 4px 1px rgba(255,255,255,0.7);
+            animation: shootingStar linear forwards;
+            pointer-events: none;
+        }
+        @keyframes shootingStar {
+            0%   { opacity: 0;   transform: translate(0, 0) scaleX(1); }
+            10%  { opacity: 1; }
+            90%  { opacity: 1; }
+            100% { opacity: 0;   transform: translate(220px, 120px) scaleX(18); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .star, .shooting-star { animation: none !important; }
         }
         .screen { display:none; position:relative; z-index:1; min-height:100vh; }
         .screen.active { display:block; animation:fadeUp 0.3s ease; }
@@ -951,6 +990,9 @@
 </head>
 <body>
 
+<!-- PickStar: 별 애니메이션 컨테이너 -->
+<div id="star-canvas" aria-hidden="true"></div>
+
 <!-- ══ PHASE 2: AGE GATE OVERLAY ══ -->
 <div class="age-gate-overlay" id="age-gate-overlay">
     <div class="age-gate-box">
@@ -958,7 +1000,7 @@
         <div class="age-gate-badge">⚠️ Age Verification Required</div>
         <div class="age-gate-title">Are you <span>18</span> or older?</div>
         <div class="age-gate-desc">
-            LuckyPick is intended for adults 18 years of age or older.<br>
+            PickStar is intended for adults 18 years of age or older.<br>
             This app is for entertainment purposes only and does not involve real money.
         </div>
         <div class="age-gate-btns">
@@ -1005,11 +1047,11 @@
 </div>
 
 <!-- ══ HOME ══ -->
-<div id="home-screen" class="screen active" role="main" aria-label="LuckyPick Home">
+<div id="home-screen" class="screen active" role="main" aria-label="PickStar Home">
     <div class="home-header">
-        <div class="home-badge">⚠️ Unofficial App — Not affiliated with NY Lottery</div>
+        <div class="home-badge">⚠️ Unofficial App — Not affiliated with any Lottery</div>
         <h1>Lucky <span>Numbers</span></h1>
-        <p>Number generator for NY Lottery games &nbsp;·&nbsp; For entertainment only</p>
+        <p>Number generator for US Lottery games &nbsp;·&nbsp; For entertainment only</p>
         <div class="home-clock">
             <div class="clock-dot"></div>
             <span id="live-time">--:--:-- --</span>
@@ -1022,9 +1064,9 @@
     <div class="install-banner" id="install-banner">
         <div class="install-banner-text">
             <div class="install-banner-title">📲 Add to Home Screen</div>
-            <div class="install-banner-sub">Install LuckyPick for faster access</div>
+            <div class="install-banner-sub">Install PickStar for faster access</div>
         </div>
-        <button class="install-btn" id="install-btn" aria-label="Install LuckyPick app">Install</button>
+        <button class="install-btn" id="install-btn" aria-label="Install PickStar app">Install</button>
         <button class="install-dismiss" id="install-dismiss" title="Dismiss">✕</button>
     </div>
 
@@ -1035,7 +1077,7 @@
         <div class="ios-install-steps">
             1. Tap the <strong>Share</strong> button &nbsp;⬆️&nbsp; at the bottom of Safari<br>
             2. Scroll down and tap <strong>"Add to Home Screen"</strong><br>
-            3. Tap <strong>Add</strong> — LuckyPick will appear on your home screen!
+            3. Tap <strong>Add</strong> — PickStar will appear on your home screen!
         </div>
     </div>
 
@@ -1122,7 +1164,7 @@
             <div class="legal-block-title">📊 Data Sources</div>
             <p>Winning numbers sourced from <a href="https://data.ny.gov" target="_blank" rel="noopener">New York State Open Data (data.ny.gov)</a> under NY Open Data Terms of Use. Official results at <a href="https://nylottery.ny.gov" target="_blank" rel="noopener">nylottery.ny.gov</a>.</p>
         </div>
-        <div class="legal-copy">&copy; 2026 LuckyPick &nbsp;·&nbsp; Unofficial &nbsp;·&nbsp; For entertainment only
+        <div class="legal-copy">&copy; 2026 PickStar &nbsp;·&nbsp; Unofficial &nbsp;·&nbsp; For entertainment only
             &nbsp;·&nbsp;
             <a href="#" onclick="openPrivacy();return false;" style="color:var(--muted);text-decoration:underline;">Privacy Policy</a>
             &nbsp;·&nbsp;
@@ -1410,7 +1452,7 @@
             <div class="legal-block-title">📊 Data Sources</div>
             <p>Winning numbers sourced from <a href="https://data.ny.gov" target="_blank" rel="noopener">New York State Open Data (data.ny.gov)</a> under NY Open Data Terms of Use. Official results at <a href="https://nylottery.ny.gov" target="_blank" rel="noopener">nylottery.ny.gov</a>.</p>
         </div>
-        <div class="legal-copy">&copy; 2026 LuckyPick &nbsp;·&nbsp; Unofficial &nbsp;·&nbsp; For entertainment only</div>
+        <div class="legal-copy">&copy; 2026 PickStar &nbsp;·&nbsp; Unofficial &nbsp;·&nbsp; For entertainment only</div>
     </div>
 </div>
 
@@ -1433,7 +1475,7 @@
     <div id="saved-list"></div>
 
     <div class="legal-footer" style="padding:20px 0 0; margin-top: 8px;">
-        <div class="legal-copy">&copy; 2026 LuckyPick &nbsp;·&nbsp; Unofficial &nbsp;·&nbsp; For entertainment only</div>
+        <div class="legal-copy">&copy; 2026 PickStar &nbsp;·&nbsp; Unofficial &nbsp;·&nbsp; For entertainment only</div>
     </div>
 </div>
 
@@ -1452,14 +1494,14 @@
         <span class="legal-updated">Last updated: April 27, 2026</span>
 
         <div class="highlight-box">
-            <p>⚠️ <strong>Unofficial App.</strong> LuckyPick is not affiliated with, endorsed by, or connected to the New York State Gaming Commission, NY Lottery, or any official lottery organization.</p>
+            <p>⚠️ <strong>Unofficial App.</strong> PickStar is not affiliated with, endorsed by, or connected to the New York State Gaming Commission, NY Lottery, or any official lottery organization.</p>
         </div>
 
         <h3>1. Who We Are</h3>
-        <p>LuckyPick is an independent, unofficial lottery number generator application for entertainment purposes only. We are not a lottery operator and do not facilitate gambling or financial transactions of any kind.</p>
+        <p>PickStar is an independent, unofficial lottery number generator application for entertainment purposes only. We are not a lottery operator and do not facilitate gambling or financial transactions of any kind.</p>
 
         <h3>2. Information We Collect</h3>
-        <p>LuckyPick is designed to collect as little data as possible. Specifically:</p>
+        <p>PickStar is designed to collect as little data as possible. Specifically:</p>
         <ul>
             <li><strong>No personal information</strong> is collected, stored, or transmitted to any server.</li>
             <li><strong>No account registration</strong> is required or available.</li>
@@ -1471,7 +1513,7 @@
         <p>Winning numbers and statistical data are fetched directly from the <strong>New York State Open Data portal (data.ny.gov)</strong> — a free public API. No user data is sent during these requests. The app only receives publicly available lottery result data.</p>
 
         <h3>4. Third Parties</h3>
-        <p>LuckyPick uses the following third-party services:</p>
+        <p>PickStar uses the following third-party services:</p>
         <ul>
             <li><strong>Google Fonts</strong> — for typography display only. No user data is shared.</li>
             <li><strong>New York State Open Data (data.ny.gov)</strong> — for publicly available lottery results.</li>
@@ -1485,7 +1527,7 @@
         <p>This application is intended for users who are <strong>18 years of age or older</strong>. We do not knowingly collect information from minors. If you are under 18, please do not use this application.</p>
 
         <h3>7. Entertainment Only</h3>
-        <p>LuckyPick is for <strong>entertainment purposes only</strong>. Generated numbers are random and do not improve the odds of winning any lottery. This app does not constitute financial advice, gambling advice, or any form of lottery strategy service.</p>
+        <p>PickStar is for <strong>entertainment purposes only</strong>. Generated numbers are random and do not improve the odds of winning any lottery. This app does not constitute financial advice, gambling advice, or any form of lottery strategy service.</p>
 
         <h3>8. Your Rights</h3>
         <p>Since we do not collect or store any personal data on our servers, there is no personal data to request, modify, or delete from our end. All your data is on your own device and under your full control.</p>
@@ -1501,7 +1543,7 @@
         </div>
     </div>
     <div class="legal-copy" style="text-align:center;font-size:11px;color:#3a445a;margin-top:16px;padding-bottom:8px;">
-        &copy; 2026 LuckyPick &nbsp;·&nbsp; Unofficial &nbsp;·&nbsp; For entertainment only
+        &copy; 2026 PickStar &nbsp;·&nbsp; Unofficial &nbsp;·&nbsp; For entertainment only
     </div>
 </div>
 
@@ -1519,17 +1561,17 @@
         <span class="legal-updated">Last updated: April 27, 2026</span>
 
         <div class="highlight-box">
-            <p>⚠️ <strong>Unofficial App.</strong> LuckyPick is not affiliated with, endorsed by, or connected to the New York State Gaming Commission, NY Lottery, or any official lottery organization. Use of this app does not constitute participation in any lottery.</p>
+            <p>⚠️ <strong>Unofficial App.</strong> PickStar is not affiliated with, endorsed by, or connected to the New York State Gaming Commission, NY Lottery, or any official lottery organization. Use of this app does not constitute participation in any lottery.</p>
         </div>
 
         <h3>1. Acceptance of Terms</h3>
-        <p>By accessing or using LuckyPick, you confirm that you are at least <strong>18 years of age</strong> and agree to these Terms of Service. If you do not agree, please discontinue use immediately.</p>
+        <p>By accessing or using PickStar, you confirm that you are at least <strong>18 years of age</strong> and agree to these Terms of Service. If you do not agree, please discontinue use immediately.</p>
 
         <h3>2. Unofficial Disclaimer</h3>
-        <p>LuckyPick is an <strong>independent, unofficial application</strong>. It is not sponsored, endorsed, operated, or approved by the New York State Gaming Commission, New York Lottery, Powerball, Mega Millions, or any other lottery organization. All lottery names, game names, and trademarks are the property of their respective owners.</p>
+        <p>PickStar is an <strong>independent, unofficial application</strong>. It is not sponsored, endorsed, operated, or approved by the New York State Gaming Commission, New York Lottery, Powerball, Mega Millions, or any other lottery organization. All lottery names, game names, and trademarks are the property of their respective owners.</p>
 
         <h3>3. Entertainment Only — No Financial Advice</h3>
-        <p>All numbers generated by LuckyPick are produced by a random number generator. LuckyPick:</p>
+        <p>All numbers generated by PickStar are produced by a random number generator. PickStar:</p>
         <ul>
             <li>Does <strong>not</strong> improve your odds of winning any lottery</li>
             <li>Does <strong>not</strong> provide gambling advice, financial advice, or lottery strategy</li>
@@ -1538,13 +1580,13 @@
         </ul>
 
         <h3>4. Age Requirement</h3>
-        <p>You must be <strong>18 years of age or older</strong> (or the legal gambling age in your jurisdiction, whichever is higher) to use this application. By using LuckyPick, you represent and warrant that you meet this age requirement.</p>
+        <p>You must be <strong>18 years of age or older</strong> (or the legal gambling age in your jurisdiction, whichever is higher) to use this application. By using PickStar, you represent and warrant that you meet this age requirement.</p>
 
         <h3>5. Data Accuracy</h3>
-        <p>Winning number data is sourced from the New York State Open Data portal (data.ny.gov). While we strive for accuracy, LuckyPick makes no warranty regarding the completeness, accuracy, or timeliness of lottery results displayed. Always verify results at <a href="https://nylottery.ny.gov">nylottery.ny.gov</a> before making any decisions.</p>
+        <p>Winning number data is sourced from the New York State Open Data portal (data.ny.gov). While we strive for accuracy, PickStar makes no warranty regarding the completeness, accuracy, or timeliness of lottery results displayed. Always verify results at <a href="https://nylottery.ny.gov">nylottery.ny.gov</a> before making any decisions.</p>
 
         <h3>6. Limitation of Liability</h3>
-        <p>To the fullest extent permitted by law, LuckyPick and its developers shall not be liable for any direct, indirect, incidental, special, or consequential damages arising from your use of this application, including but not limited to losses from lottery ticket purchases made based on numbers generated by this app.</p>
+        <p>To the fullest extent permitted by law, PickStar and its developers shall not be liable for any direct, indirect, incidental, special, or consequential damages arising from your use of this application, including but not limited to losses from lottery ticket purchases made based on numbers generated by this app.</p>
 
         <h3>7. Responsible Gambling</h3>
         <p>Lottery games involve real financial risk. Please play responsibly and within your means.</p>
@@ -1560,7 +1602,7 @@
         <p>These terms are governed by the laws of the State of New York, United States.</p>
     </div>
     <div class="legal-copy" style="text-align:center;font-size:11px;color:#3a445a;margin-top:16px;padding-bottom:8px;">
-        &copy; 2026 LuckyPick &nbsp;·&nbsp; Unofficial &nbsp;·&nbsp; For entertainment only
+        &copy; 2026 PickStar &nbsp;·&nbsp; Unofficial &nbsp;·&nbsp; For entertainment only
     </div>
 </div>
 
@@ -2378,7 +2420,7 @@ function formatSetText(gameId, set) {
     if (bonusNum !== null) line += '  +  ' + bonusNum;
     return emoji + ' ' + gameName + '\n'
          + line + '\n'
-         + '🍀 Generated with LuckyPick';
+         + '⭐ Generated with PickStar';
 }
 
 function showToast(msg) {
@@ -2795,6 +2837,73 @@ window.addEventListener('load', function() {
     /* [Phase 1.4] Set initial history state so back button works from first load */
     window.history.replaceState({ screen: 'home' }, '', window.location.pathname);
 
+    /* ══ PickStar: 별 반짝임 애니메이션 ══
+       - 100개의 별을 JS로 동적 생성 (CSS keyframes 재사용)
+       - 각 별: 위치/크기/밝기/속도 랜덤
+       - 유성(shooting star) 15~30초마다 랜덤 등장
+       - prefers-reduced-motion 존중
+    ══ */
+    (function() {
+        var canvas = document.getElementById('star-canvas');
+        if (!canvas) return;
+        var STAR_COUNT = 110;
+        var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        /* 별 생성 */
+        for (var i = 0; i < STAR_COUNT; i++) {
+            var star = document.createElement('div');
+            star.className = 'star';
+            var size     = (Math.random() * 1.8 + 0.6).toFixed(2);  /* 0.6~2.4px */
+            var x        = (Math.random() * 100).toFixed(2);
+            var y        = (Math.random() * 100).toFixed(2);
+            var dur      = (Math.random() * 3 + 2).toFixed(2);       /* 2~5s */
+            var delay    = (Math.random() * 6).toFixed(2);           /* 0~6s */
+            var minOp    = (Math.random() * 0.15 + 0.05).toFixed(2); /* 0.05~0.2 */
+            var maxOp    = (Math.random() * 0.5 + 0.35).toFixed(2);  /* 0.35~0.85 */
+            star.style.cssText = [
+                'width:'    + size + 'px',
+                'height:'   + size + 'px',
+                'left:'     + x + '%',
+                'top:'      + y + '%',
+                '--s-min:'  + minOp,
+                '--s-max:'  + maxOp,
+                'animation-duration:'        + dur + 's',
+                'animation-delay:-'          + delay + 's',
+                'opacity:'  + minOp,
+            ].join(';');
+            /* 밝은 별 일부는 glow 효과 */
+            if (Math.random() > 0.75) {
+                star.style.boxShadow = '0 0 ' + (parseFloat(size)*2) + 'px rgba(255,255,255,0.6)';
+            }
+            canvas.appendChild(star);
+        }
+
+        /* 유성 생성 함수 */
+        function launchShootingStar() {
+            if (reduced) return;
+            var s = document.createElement('div');
+            s.className = 'shooting-star';
+            var startX = (Math.random() * 70 + 5).toFixed(1);
+            var startY = (Math.random() * 40 + 5).toFixed(1);
+            var dur    = (Math.random() * 0.8 + 0.6).toFixed(2);  /* 0.6~1.4s */
+            s.style.cssText = 'left:' + startX + '%;top:' + startY + '%;animation-duration:' + dur + 's;';
+            canvas.appendChild(s);
+            setTimeout(function() {
+                if (s.parentNode) s.parentNode.removeChild(s);
+            }, parseFloat(dur) * 1000 + 100);
+        }
+
+        /* 유성: 처음 1.5초 뒤 첫 등장, 이후 15~30초마다 */
+        if (!reduced) {
+            setTimeout(function() {
+                launchShootingStar();
+                setInterval(function() {
+                    launchShootingStar();
+                }, Math.random() * 15000 + 15000);
+            }, 1500);
+        }
+    })();
+
     /* [Phase 2] Age Gate initialization — runs before anything else */
     var ageGateOverlay = document.getElementById('age-gate-overlay');
     var ageBlocked     = document.getElementById('age-blocked');
@@ -2912,7 +3021,7 @@ window.addEventListener('load', function() {
                 deferredPrompt = null;
                 installBanner.classList.remove('visible');
                 if (choice.outcome === 'accepted') {
-                    showToast('🎉 LuckyPick installed!');
+                    showToast('🎉 PickStar installed!');
                 }
             });
         });
