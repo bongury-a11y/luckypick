@@ -1,15 +1,18 @@
 {
-  "name": "LuckyPick — NY Lottery Numbers",
-  "short_name": "LuckyPick",
-  "description": "Generate lucky numbers for NY Lottery games. Unofficial app. For entertainment only.",
-  "start_url": "./ny_lottery_generator.html",
+  "name": "PickStar — US Lottery Numbers",
+  "short_name": "PickStar",
+  "description": "Generate lucky numbers for US Lottery games. Unofficial app. For entertainment only.",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#0a0e1a",
   "theme_color": "#0a0e1a",
   "orientation": "portrait-primary",
   "lang": "en-US",
-  "categories": ["entertainment", "utilities"],
+  "categories": [
+    "entertainment",
+    "utilities"
+  ],
   "icons": [
     {
       "src": "icon-192.png",
