@@ -1,6 +1,6 @@
 /* ══════════════════════════════════════════════════════
-   LuckyPick — Service Worker
-   Version : 2026-04-27
+   PickStar — Service Worker
+   Version : 2026-04-27 | PickStar
    Strategy: Cache-first for app shell, Network-first for API
    ══════════════════════════════════════════════════════
 
@@ -9,7 +9,7 @@
    The activate event will automatically delete all old caches.
    ══════════════════════════════════════════════════════ */
 
-var CACHE_NAME = 'luckypick-2026-04-27';
+var CACHE_NAME = 'pickstar-2026-04-27';
 
 /* App shell files — cached on install, served offline */
 var APP_SHELL = [
@@ -42,8 +42,8 @@ self.addEventListener('activate', function(e) {
             return Promise.all(
                 keys
                     .filter(function(key) {
-                        /* Delete any luckypick cache that is NOT the current version */
-                        return key !== CACHE_NAME && key.indexOf('luckypick') === 0;
+                        /* Delete any pickstar cache that is NOT the current version */
+                        return key !== CACHE_NAME && key.indexOf('pickstar') === 0;
                     })
                     .map(function(key) {
                         console.log('[SW] Deleting old cache:', key);
