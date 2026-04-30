@@ -91,17 +91,17 @@
 
         /* ── HOME ── */
         #home-screen { max-width:860px; margin:0 auto; padding:40px 16px 64px; }
-        .home-header { text-align:center; margin-bottom:48px; }
-        .home-badge { display:inline-block; font-size:11px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:var(--gold); border:1px solid rgba(212,168,67,0.35); padding:5px 16px; border-radius:99px; margin-bottom:18px; }
-        .home-header h1 { font-family:'Playfair Display',serif; font-size:clamp(2.2rem,8vw,3.8rem); font-weight:900; color:#fff; line-height:1.1; }
+        .home-header { text-align:center; margin-bottom:32px; }
+        .home-badge { display:inline-block; font-size:9px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--gold); border:1px solid rgba(212,168,67,0.35); padding:4px 12px; border-radius:99px; margin-bottom:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+        .home-header h1 { font-family:'Playfair Display',serif; font-size:clamp(3.2rem,11vw,5.8rem); font-weight:900; color:#fff; line-height:1.05; letter-spacing:-1px; }
         .home-header h1 span { color:var(--gold); }
-        .home-header p { margin-top:12px; color:var(--muted); font-size:15px; font-weight:300; }
+        .home-header p { margin-top:6px; color:var(--muted); font-size:11px; font-weight:300; white-space:nowrap; }
         .home-clock { margin-top:20px; display:inline-flex; align-items:center; gap:8px; background:var(--surface); border:1px solid var(--border); border-radius:99px; padding:7px 18px; font-size:13px; color:var(--muted); }
         .clock-dot { width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 6px var(--green); flex-shrink:0; }
         #live-time { color:var(--text); font-weight:500; }
         .section-label { font-size:11px; font-weight:600; letter-spacing:2.5px; text-transform:uppercase; color:var(--muted); margin-bottom:16px; }
-        .game-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px; margin-bottom:40px; }
-        .game-tile { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:22px 20px; cursor:pointer; transition:all 0.22s ease; display:flex; flex-direction:column; gap:10px; -webkit-tap-highlight-color:transparent; position:relative; overflow:hidden; }
+        .game-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-bottom:40px; }
+        .game-tile { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px 16px; cursor:pointer; transition:all 0.22s ease; display:flex; flex-direction:column; gap:8px; justify-content:space-between; aspect-ratio:1/1; -webkit-tap-highlight-color:transparent; position:relative; overflow:hidden; }
         .game-tile::after { content:''; position:absolute; inset:0; border-radius:var(--radius); background:linear-gradient(135deg,rgba(212,168,67,0.06) 0%,transparent 60%); opacity:0; transition:opacity 0.22s ease; }
         .game-tile:hover { border-color:rgba(212,168,67,0.35); transform:translateY(-3px); box-shadow:0 12px 32px rgba(0,0,0,0.3); }
         .game-tile:hover::after { opacity:1; }
@@ -110,9 +110,9 @@
         .tile-icon { font-size:26px; }
         .tile-arrow { color:var(--muted); font-size:18px; transition:transform 0.22s ease,color 0.22s ease; }
         .game-tile:hover .tile-arrow { transform:translateX(4px); color:var(--gold); }
-        .tile-name { font-family:'Playfair Display',serif; font-size:1.15rem; font-weight:700; color:#fff; }
+        .tile-name { font-family:'Playfair Display',serif; font-size:1.15rem; font-weight:700; color:#fff; line-height:1.2; }
         .tile-rule { font-size:12px; color:var(--muted); line-height:1.5; }
-        .tile-draw { margin-top:4px; font-size:11px; font-weight:600; color:var(--gold); }
+        .tile-draw { margin-top:4px; font-size:12px; font-weight:600; color:var(--gold); line-height:1.5; white-space:pre-line; }
         .home-footer { text-align:center; color:var(--muted); font-size:12px; line-height:1.9; }
         .home-footer a { color:var(--gold); text-decoration:none; }
 
@@ -126,20 +126,20 @@
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 10px;
-            padding: 16px 18px;
-            margin-bottom: 12px;
+            padding: 12px 14px;
+            margin-bottom: 8px;
             text-align: left;
         }
         .legal-block-title {
-            font-size: 10px;
+            font-size: 9px;
             font-weight: 700;
             letter-spacing: 2px;
             text-transform: uppercase;
             color: var(--muted);
-            margin-bottom: 7px;
+            margin-bottom: 6px;
         }
         .legal-block p {
-            font-size: 11.5px;
+            font-size: 10.5px;
             color: var(--muted);
             line-height: 1.7;
         }
@@ -149,7 +149,7 @@
         }
         .legal-copy {
             text-align: center;
-            font-size: 11px;
+            font-size: 10px;
             color: #3a445a;
             margin-top: 10px;
             padding-bottom: 8px;
@@ -161,7 +161,7 @@
         .back-btn { display:inline-flex; align-items:center; gap:7px; background:var(--surface); border:1px solid var(--border); border-radius:99px; padding:8px 16px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; color:var(--muted); cursor:pointer; transition:all 0.2s ease; -webkit-tap-highlight-color:transparent; }
         .back-btn:hover { border-color:rgba(212,168,67,0.35); color:var(--gold-lite); }
         .back-btn svg { width:14px; height:14px; }
-        .draw-badge { display:inline-flex; align-items:center; gap:7px; background:var(--surface); border:1px solid var(--border); border-radius:99px; padding:7px 14px; font-size:12px; color:var(--muted); }
+        .draw-badge { display:none; }
         .draw-dot { width:6px; height:6px; border-radius:50%; background:var(--gold); flex-shrink:0; }
         .draw-badge strong { color:var(--gold); font-weight:600; }
 
@@ -176,23 +176,275 @@
         /* game card */
         .game-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; display:none; }
         .game-card.active { display:block; animation:fadeUp 0.28s ease; }
-        .card-header { padding:22px 26px 18px; border-bottom:1px solid var(--border); display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+        .card-header { padding:18px 22px 16px; border-bottom:1px solid var(--border); display:flex; flex-direction:column; gap:0; }
+        .card-header-top { display:flex; align-items:flex-start; justify-content:space-between; width:100%; }
         .game-icon { font-size:26px; margin-bottom:6px; }
         .card-header h2 { font-family:'Playfair Display',serif; font-size:clamp(1.4rem,4vw,1.85rem); font-weight:700; color:#fff; line-height:1.2; }
         .card-header-sub { margin-top:4px; color:var(--muted); font-size:13px; }
-        .card-draw-info { flex-shrink:0; text-align:right; }
-        .card-draw-label { font-size:10px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin-bottom:4px; }
-        .card-draw-days { font-size:13px; font-weight:600; color:var(--gold); }
-        .card-draw-time { font-size:12px; color:var(--muted); margin-top:2px; }
-        .card-draw-next { font-size:11px; color:#6b7a99; margin-top:3px; }
+        .card-rule   { font-size:12px; color:var(--muted); margin-top:4px; line-height:1.4; }
+        .card-region { font-size:11px; color:#4a5568; margin-top:3px; }
+        .card-draw-info { flex-shrink:0; text-align:right; display:flex; flex-direction:column; align-items:flex-end; justify-content:flex-start; gap:3px; padding-top:2px; }
+        .card-draw-label { display:none; }
+        .card-draw-days { font-size:12px; font-weight:700; color:var(--gold); line-height:1.4; }
+        .card-draw-time { font-size:11px; color:var(--muted); line-height:1.3; }
+        .card-draw-next { display:none; }
 
+
+        /* card-header 재구성 */
+        .card-header-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .card-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.4rem,4vw,1.85rem);
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.2;
+            margin: 0 0 4px 0;
+        }
+
+        /* ── 생성 번호: 핫/콜드 구슬 색상 ── */
+        .ball-hot-tint {
+            background: linear-gradient(145deg, #7f1d1d, #b91c1c) !important;
+            color: #fca5a5 !important;
+            border: 1px solid rgba(239,68,68,0.4) !important;
+            box-shadow: 0 0 8px rgba(239,68,68,0.35);
+        }
+        .ball-cold-tint {
+            background: linear-gradient(145deg, #1e3a5f, #1d4ed8) !important;
+            color: #bfdbfe !important;
+            border: 1px solid rgba(96,165,250,0.45) !important;
+            box-shadow: 0 0 8px rgba(59,130,246,0.4);
+        }
+        /* 범례 표시 */
+        .ball-legend {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+        .ball-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            color: var(--muted);
+            font-weight: 500;
+        }
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .legend-dot-hot  { background: linear-gradient(145deg,#7f1d1d,#b91c1c); }
+        .legend-dot-cold { background: linear-gradient(145deg,#1e3a5f,#1d4ed8); }
+        .legend-dot-norm { background: linear-gradient(145deg,#1f2937,#374151); }
+
+        /* ══ QUICK GENERATE ══ */
+        .quick-gen-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 15px 20px;
+            border: none;
+            border-radius: var(--radius);
+            background: linear-gradient(135deg, #1a2236 0%, #1e2d45 100%);
+            border: 1px solid rgba(212,168,67,0.25);
+            color: var(--gold);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.22s ease;
+            -webkit-tap-highlight-color: transparent;
+            margin-bottom: 14px;
+        }
+        .quick-gen-btn:hover {
+            border-color: rgba(212,168,67,0.5);
+            background: linear-gradient(135deg, #1e2d45 0%, #243552 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+        .quick-gen-btn:active { transform: translateY(0); }
+        .quick-gen-btn svg { flex-shrink: 0; }
+
+        /* 결과 카드 */
+        .quick-gen-card {
+            display: none;
+            background: var(--surface);
+            border: 1px solid rgba(212,168,67,0.2);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            margin-bottom: 20px;
+            animation: fadeUp 0.25s ease;
+        }
+        .quick-gen-card.visible { display: block; }
+        .quick-gen-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+        .quick-gen-card-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+        .quick-gen-card-time {
+            font-size: 11px;
+            color: var(--muted);
+        }
+        .quick-gen-card-desc {
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+        .quick-gen-view-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(212,168,67,0.1);
+            border: 1px solid rgba(212,168,67,0.3);
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gold);
+            cursor: pointer;
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .quick-gen-view-btn:hover {
+            background: rgba(212,168,67,0.18);
+            border-color: rgba(212,168,67,0.5);
+        }
+
+        /* 모달 */
+        .quick-gen-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.75);
+            z-index: 9998;
+            align-items: flex-end;
+            justify-content: center;
+            padding: 0;
+        }
+        .quick-gen-modal-overlay.visible { display: flex; }
+        .quick-gen-modal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px 20px 0 0;
+            width: 100%;
+            max-width: 640px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 0 0 32px;
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(60px); opacity: 0; }
+            to   { transform: translateY(0);    opacity: 1; }
+        }
+        .quick-gen-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 20px 14px;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            background: var(--surface);
+            z-index: 1;
+        }
+        .quick-gen-modal-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .quick-gen-modal-close {
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 99px;
+            padding: 6px 14px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--muted);
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            transition: all 0.2s;
+        }
+        .quick-gen-modal-close:hover { border-color: rgba(255,255,255,0.2); color: var(--text); }
+        .quick-gen-modal-body { padding: 14px 16px; }
+
+        /* 모달 내 게임 행 */
+        .qg-game-row {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+        }
+        .qg-game-row-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .qg-game-name {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--gold);
+        }
+        .qg-save-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .qg-save-btn:hover { border-color: var(--gold); color: var(--gold); }
+        .qg-save-btn.saved { border-color: rgba(34,197,94,0.4); color: #22c55e; pointer-events: none; }
+        .qg-balls-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            align-items: center;
+        }
         /* ── WINNING NUMBERS SECTION ── */
         .winning-section { margin:0 26px 0; padding:16px 0 0; border-top:1px solid var(--border); }
         .winning-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:8px; }
         .winning-title { font-size:11px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--muted); display:flex; align-items:center; gap:7px; }
         .winning-dot { width:6px; height:6px; border-radius:50%; background:var(--green); box-shadow:0 0 5px var(--green); }
         .winning-date { font-size:11px; color:var(--muted); }
-        .winning-balls { display:flex; flex-wrap:wrap; gap:7px; align-items:center; }
+        .winning-balls { display:flex; flex-wrap:wrap; gap:5px; align-items:center; }
         .winning-loading { font-size:12px; color:var(--muted); padding:8px 0; display:flex; align-items:center; gap:8px; }
         .winning-error { font-size:12px; color:rgba(232,76,106,0.8); padding:8px 0; }
         .spin { display:inline-block; width:12px; height:12px; border:2px solid rgba(212,168,67,0.3); border-top-color:var(--gold); border-radius:50%; animation:spin 0.7s linear infinite; }
@@ -213,25 +465,25 @@
         .result-set { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:13px 15px; animation:setIn 0.22s ease both; }
         @keyframes setIn { from{opacity:0;transform:scale(0.97)} to{opacity:1;transform:scale(1)} }
         .set-label { font-size:11px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:10px; }
-        .balls-row { display:flex; flex-wrap:wrap; gap:7px; align-items:center; }
+        .balls-row { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
 
         /* balls */
-        .ball { min-width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:15px; flex:1; max-width:56px; transition:transform 0.15s ease; cursor:default; }
+        .ball { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; flex:none; transition:transform 0.15s ease; cursor:default; flex-shrink:0; }
         .ball:hover { transform:scale(1.1); }
-        .ball-main        { background:linear-gradient(145deg,#1e3a6e,#2a4f9e); color:#a8c4ff; border:1px solid rgba(100,150,255,0.22); }
-        .ball-bonus       { background:linear-gradient(145deg,#7c2d12,#c2440f); color:#ffd4a8; border:1px solid rgba(249,115,22,0.28); }
+        .ball-main        { background:linear-gradient(145deg,#1f2937,#374151); color:#d1d5db; border:1px solid rgba(255,255,255,0.12); }
+        .ball-bonus       { background:linear-gradient(145deg,#78350f,#b45309); color:#fde68a; border:1px solid rgba(212,168,67,0.4); }
         .ball-bonus-gold  { background:linear-gradient(145deg,#78350f,#b45309); color:#fde68a; border:1px solid rgba(212,168,67,0.28); }
-        .ball-bonus-green { background:linear-gradient(145deg,#14532d,#15803d); color:#86efac; border:1px solid rgba(34,197,94,0.28); }
-        .ball-zero        { background:linear-gradient(145deg,#1f2937,#374151); color:#9ca3af; border:1px solid rgba(255,255,255,0.09); }
+        .ball-bonus-green { background:linear-gradient(145deg,#78350f,#b45309); color:#fde68a; border:1px solid rgba(212,168,67,0.4); }
+        .ball-zero        { background:linear-gradient(145deg,#1f2937,#374151); color:#d1d5db; border:1px solid rgba(255,255,255,0.12); }
         /* winning balls: slightly smaller, outlined style */
-        .ball-w-main        { background:rgba(30,58,110,0.5); color:#a8c4ff; border:1px solid rgba(100,150,255,0.35); }
-        .ball-w-bonus       { background:rgba(124,45,18,0.5); color:#ffd4a8; border:1px solid rgba(249,115,22,0.4); }
+        .ball-w-main        { background:rgba(55,65,81,0.6); color:#d1d5db; border:1px solid rgba(255,255,255,0.15); }
+        .ball-w-bonus       { background:rgba(120,53,15,0.55); color:#fde68a; border:1px solid rgba(212,168,67,0.45); }
         .ball-w-bonus-gold  { background:rgba(120,53,15,0.5); color:#fde68a; border:1px solid rgba(212,168,67,0.4); }
-        .ball-w-bonus-green { background:rgba(20,83,45,0.5); color:#86efac; border:1px solid rgba(34,197,94,0.4); }
-        .ball-w-zero        { background:rgba(31,41,55,0.5); color:#9ca3af; border:1px solid rgba(255,255,255,0.12); }
+        .ball-w-bonus-green { background:rgba(120,53,15,0.55); color:#fde68a; border:1px solid rgba(212,168,67,0.45); }
+        .ball-w-zero        { background:rgba(55,65,81,0.5); color:#d1d5db; border:1px solid rgba(255,255,255,0.15); }
         .ball-sep { color:var(--muted); font-size:16px; padding:0 2px; flex:none; }
         /* winning balls fixed size */
-        .ball-w { min-width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; }
+        .ball-w { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:11px; flex:none; flex-shrink:0; }
 
         /* ── HOT NUMBERS ── */
         .hot-section {
@@ -277,9 +529,9 @@
             font-size: 13px;
             flex-shrink: 0;
             cursor: default;
-            background: linear-gradient(145deg, #451a03, #92400e);
-            color: #fde68a;
-            border: 1px solid rgba(251,191,36,0.3);
+            background: linear-gradient(145deg, #7f1d1d, #b91c1c);
+            color: #fca5a5;
+            border: 1px solid rgba(239,68,68,0.35);
             transition: transform 0.15s ease;
         }
         .ball-hot:hover { transform: scale(1.1); }
@@ -288,8 +540,8 @@
             position: absolute;
             top: -4px;
             right: -4px;
-            background: var(--gold);
-            color: #0a0e1a;
+            background: #ef4444;
+            color: #fff;
             font-size: 8px;
             font-weight: 800;
             width: 14px;
@@ -301,9 +553,9 @@
         }
         /* digit variant for Win4 / Numbers */
         .ball-hot-zero {
-            background: linear-gradient(145deg, #1c1917, #44403c);
-            color: #d6d3d1;
-            border: 1px solid rgba(255,255,255,0.12);
+            background: linear-gradient(145deg, #7f1d1d, #991b1b);
+            color: #fca5a5;
+            border: 1px solid rgba(239,68,68,0.3);
         }
 
         /* ── COLD NUMBERS ── */
@@ -349,9 +601,9 @@
             font-size: 13px;
             flex-shrink: 0;
             cursor: default;
-            background: linear-gradient(145deg, #0c1a3a, #1e3a6e);
-            color: #93c5fd;
-            border: 1px solid rgba(147,197,253,0.25);
+            background: linear-gradient(145deg, #1e3a5f, #1d4ed8);
+            color: #bfdbfe;
+            border: 1px solid rgba(96,165,250,0.35);
             transition: transform 0.15s ease;
         }
         .ball-cold:hover { transform: scale(1.1); }
@@ -373,9 +625,9 @@
         }
         /* digit variant for Win4 / Numbers */
         .ball-cold-zero {
-            background: linear-gradient(145deg, #0f172a, #1e293b);
-            color: #94a3b8;
-            border: 1px solid rgba(148,163,184,0.2);
+            background: linear-gradient(145deg, #1e3a5f, #1e40af);
+            color: #bfdbfe;
+            border: 1px solid rgba(96,165,250,0.3);
         }
 
         @media (max-width:520px) {
@@ -589,34 +841,40 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 13px 16px;
+            padding: 12px 14px;
             border-bottom: 1px solid var(--border);
-            flex-wrap: wrap;
-            gap: 8px;
+            flex-wrap: nowrap;
+            gap: 10px;
+            min-height: 52px;
         }
-        .saved-card-meta { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+        .saved-card-meta { display:flex; flex-direction:column; align-items:flex-start; gap:4px; flex:1; min-width:0; }
         .saved-game-tag {
             font-size: 12px;
             font-weight: 700;
             color: var(--gold);
-            background: var(--gold-dim, rgba(212,168,67,0.1));
+            background: rgba(212,168,67,0.1);
             border: 1px solid rgba(212,168,67,0.2);
             padding: 3px 10px;
             border-radius: 99px;
+            white-space: nowrap;
         }
-        .saved-date { font-size: 11px; color: var(--muted); }
+        .saved-date { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .delete-btn {
             background: transparent;
             border: none;
             color: var(--muted);
             cursor: pointer;
-            font-size: 16px;
-            padding: 2px 6px;
-            border-radius: 4px;
-            transition: color 0.15s;
+            padding: 6px;
+            border-radius: 6px;
+            transition: color 0.15s, background 0.15s;
             -webkit-tap-highlight-color: transparent;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: auto;
         }
-        .delete-btn:hover { color: #e84c6a; }
+        .delete-btn:hover { color: #e84c6a; background: rgba(232,76,106,0.08); }
 
         .saved-card-body { padding: 14px 16px; }
         .saved-balls-row { display:flex; flex-wrap:wrap; gap:7px; align-items:center; margin-bottom:10px; }
@@ -733,12 +991,12 @@
             .generate-wrap { padding:14px 14px 0; }
             .results-area { padding:14px 14px 20px; }
             .winning-section { margin:0 14px 0; }
-            .card-draw-info { display:none; }
-            .ball { min-width:36px; height:36px; font-size:13px; max-width:50px; }
-            .ball-w { min-width:32px; height:32px; font-size:12px; }
-            .game-grid { grid-template-columns:1fr 1fr; gap:10px; }
+            .card-draw-info { display:flex; }
+            .ball { width:32px; height:32px; font-size:11px; flex:none; flex-shrink:0; }
+            .ball-w { width:28px; height:28px; font-size:10px; flex:none; flex-shrink:0; }
+            .game-grid { grid-template-columns:repeat(2,1fr); gap:12px; }
             .tile-rule { display:none; }
-            .game-tile { padding:16px 14px; gap:7px; }
+            .game-tile { padding:12px 10px; gap:6px; }
         }
         @media (max-width:340px) { .game-grid { grid-template-columns:1fr; } }
 
@@ -993,6 +1251,22 @@
 <!-- PickStar: 별 애니메이션 컨테이너 -->
 <div id="star-canvas" aria-hidden="true"></div>
 
+
+<!-- ══ QUICK GENERATE MODAL ══ -->
+<div class="quick-gen-modal-overlay" id="quick-gen-modal-overlay">
+    <div class="quick-gen-modal" id="quick-gen-modal">
+        <div class="quick-gen-modal-header">
+            <div class="quick-gen-modal-title">
+                ⚡ Quick Generate Results
+            </div>
+            <button class="quick-gen-modal-close" id="quick-gen-modal-close" aria-label="Close modal">Close</button>
+        </div>
+        <div class="quick-gen-modal-body" id="quick-gen-modal-body">
+            <!-- JS로 채워짐 -->
+        </div>
+    </div>
+</div>
+
 <!-- ══ PHASE 2: AGE GATE OVERLAY ══ -->
 <div class="age-gate-overlay" id="age-gate-overlay">
     <div class="age-gate-box">
@@ -1049,9 +1323,9 @@
 <!-- ══ HOME ══ -->
 <div id="home-screen" class="screen active" role="main" aria-label="PickStar Home">
     <div class="home-header">
-        <div class="home-badge">⚠️ Unofficial App — Not affiliated with any Lottery</div>
+        <div class="home-badge">⚠️ Unofficial · Not affiliated with any Lottery</div>
         <h1>Pick<span>Star</span></h1>
-        <p>Number generator for US Lottery games &nbsp;·&nbsp; For entertainment only</p>
+        <p>For entertainment only · Not official</p>
         <div class="home-clock">
             <div class="clock-dot"></div>
             <span id="live-time">--:--:-- --</span>
@@ -1096,6 +1370,28 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
         </div>
     </button>
+
+    <!-- ══ QUICK GENERATE (홈 화면 — My Saved Numbers 버튼 아래) ══ -->
+    <button class="quick-gen-btn" id="quick-gen-btn" aria-label="Quick generate all games">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        Quick Generate — All Games
+    </button>
+
+    <div class="quick-gen-card" id="quick-gen-card">
+        <div class="quick-gen-card-header">
+            <div class="quick-gen-card-title">
+                ⚡ Quick Generate Complete!
+            </div>
+            <span class="quick-gen-card-time" id="quick-gen-card-time"></span>
+        </div>
+        <div class="quick-gen-card-desc">
+            1 set generated for all 9 games &nbsp;·&nbsp; Tap to review &amp; save
+        </div>
+        <button class="quick-gen-view-btn" id="quick-gen-view-btn" aria-label="View quick generate results">
+            View Results
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+    </div>
 
     <div class="section-label" style="margin-top:4px;">Games</div>
     <div class="game-grid">
@@ -1203,8 +1499,13 @@
     <!-- POWERBALL -->
     <div id="powerball-card" class="game-card">
         <div class="card-header">
-            <div><div class="game-icon">⚡</div><h2>Powerball</h2><div class="card-header-sub">Pick 5 from 1–69 + Powerball from 1–26 &nbsp;·&nbsp; 🇺🇸 Nationwide</div></div>
-            <div class="card-draw-info"><div class="card-draw-label">Draw Days</div><div class="card-draw-days">Mon · Wed · Sat</div><div class="card-draw-time">10:59 PM ET</div><div class="card-draw-next" id="powerball-next"></div></div>
+            <div class="card-header-top">
+                <div class="game-icon">⚡</div>
+                <div class="card-draw-info"><div class="card-draw-days">Mon · Wed · Sat</div><div class="card-draw-time">@ 10:59 PM ET</div></div>
+            </div>
+            <h2>Powerball</h2>
+            <div class="card-rule">Pick 5 from 1–69 + Powerball 1–26</div>
+            <div class="card-region">🇺🇸 Nationwide</div>
         </div>
         <div class="winning-section" id="powerball-winning-section">
             <div class="winning-header"><div class="winning-title"><span class="winning-dot"></span>Latest Winning Numbers</div><span class="winning-date" id="powerball-winning-date"></span></div>
@@ -1224,14 +1525,26 @@
                 Generate My Numbers
             </button>
         </div>
-        <div class="results-area" id="powerball-results"><div class="empty-state"><div class="empty-icon">🎰</div>Hit Generate to get your PickStar numbers</div></div>
+        <div class="results-area" id="powerball-results">
+            <div class="ball-legend">
+                <div class="ball-legend-item"><div class="legend-dot legend-dot-hot"></div>🔥 Hot number</div>
+                <div class="ball-legend-item"><div class="legend-dot legend-dot-cold"></div>🧊 Cold number</div>
+                <div class="ball-legend-item"><div class="legend-dot legend-dot-norm"></div>Normal</div>
+            </div>
+            <div class="empty-state"><div class="empty-icon">🎰</div>Hit Generate to get your PickStar numbers</div>
+        </div>
     </div>
 
     <!-- MEGA MILLIONS -->
     <div id="mega-card" class="game-card">
         <div class="card-header">
-            <div><div class="game-icon">✨</div><h2>Mega Millions</h2><div class="card-header-sub">Pick 5 from 1–70 + Mega Ball from 1–25 &nbsp;·&nbsp; 🇺🇸 Nationwide</div></div>
-            <div class="card-draw-info"><div class="card-draw-label">Draw Days</div><div class="card-draw-days">Tue · Fri</div><div class="card-draw-time">11:00 PM ET</div><div class="card-draw-next" id="mega-next"></div></div>
+            <div class="card-header-top">
+                <div class="game-icon">✨</div>
+                <div class="card-draw-info"><div class="card-draw-days">Tue · Fri</div><div class="card-draw-time">@ 11:00 PM ET</div></div>
+            </div>
+            <h2>Mega Millions</h2>
+            <div class="card-rule">Pick 5 from 1–70 + Mega Ball 1–25</div>
+            <div class="card-region">🇺🇸 Nationwide</div>
         </div>
         <div class="winning-section" id="mega-winning-section">
             <div class="winning-header"><div class="winning-title"><span class="winning-dot"></span>Latest Winning Numbers</div><span class="winning-date" id="mega-winning-date"></span></div>
@@ -1251,14 +1564,26 @@
                 Generate My Numbers
             </button>
         </div>
-        <div class="results-area" id="mega-results"><div class="empty-state"><div class="empty-icon">✨</div>Hit Generate to get your PickStar numbers</div></div>
+        <div class="results-area" id="mega-results">
+            <div class="ball-legend">
+                <div class="ball-legend-item"><div class="legend-dot legend-dot-hot"></div>🔥 Hot</div>
+                <div class="ball-legend-item"><div class="legend-dot legend-dot-cold"></div>🧊 Cold</div>
+                <div class="ball-legend-item"><div class="legend-dot legend-dot-norm"></div>Normal</div>
+            </div>
+            <div class="empty-state"><div class="empty-icon">✨</div>Hit Generate to get your PickStar numbers</div>
+        </div>
     </div>
 
     <!-- NY LOTTO -->
     <div id="lotto-card" class="game-card">
         <div class="card-header">
-            <div><div class="game-icon">🎱</div><h2>NY Lotto</h2><div class="card-header-sub">Pick 6 from 1–59 + Bonus Ball from 1–59 &nbsp;·&nbsp; 🗽 NY Only</div></div>
-            <div class="card-draw-info"><div class="card-draw-label">Draw Days</div><div class="card-draw-days">Wed · Sat</div><div class="card-draw-time">11:21 PM ET</div><div class="card-draw-next" id="lotto-next"></div></div>
+            <div class="card-header-top">
+                <div class="game-icon">🎱</div>
+                <div class="card-draw-info"><div class="card-draw-days">Wed · Sat</div><div class="card-draw-time">@ 11:21 PM ET</div></div>
+            </div>
+            <h2>NY Lotto</h2>
+            <div class="card-rule">Pick 6 from 1–59 + Bonus Ball 1–59</div>
+            <div class="card-region">🗽 NY Only</div>
         </div>
         <div class="winning-section" id="lotto-winning-section">
             <div class="winning-header"><div class="winning-title"><span class="winning-dot"></span>Latest Winning Numbers</div><span class="winning-date" id="lotto-winning-date"></span></div>
@@ -1278,14 +1603,26 @@
                 Generate My Numbers
             </button>
         </div>
-        <div class="results-area" id="lotto-results"><div class="empty-state"><div class="empty-icon">🎱</div>Hit Generate to get your PickStar numbers</div></div>
+        <div class="results-area" id="lotto-results">
+            <div class="ball-legend">
+                <div class="ball-legend-item"><div class="legend-dot legend-dot-hot"></div>🔥 Hot</div>
+                <div class="ball-legend-item"><div class="legend-dot legend-dot-cold"></div>🧊 Cold</div>
+                <div class="ball-legend-item"><div class="legend-dot legend-dot-norm"></div>Normal</div>
+            </div>
+            <div class="empty-state"><div class="empty-icon">🎱</div>Hit Generate to get your PickStar numbers</div>
+        </div>
     </div>
 
     <!-- MILLIONAIRE -->
     <div id="millionaire-card" class="game-card">
         <div class="card-header">
-            <div><div class="game-icon">💎</div><h2>Millionaire for Life</h2><div class="card-header-sub">Pick 5 from 1–58 + Millionaire Ball from 1–5 &nbsp;·&nbsp; 🇺🇸 Nationwide</div></div>
-            <div class="card-draw-info"><div class="card-draw-label">Draw Days</div><div class="card-draw-days">Mon · Thu</div><div class="card-draw-time">9:00 PM ET</div><div class="card-draw-next" id="millionaire-next"></div></div>
+            <div class="card-header-top">
+                <div class="game-icon">💎</div>
+                <div class="card-draw-info"><div class="card-draw-days">Mon · Thu</div><div class="card-draw-time">@ 9:00 PM ET</div></div>
+            </div>
+            <h2>Millionaire for Life</h2>
+            <div class="card-rule">Pick 5 from 1–58 + Millionaire Ball 1–5</div>
+            <div class="card-region">🇺🇸 Nationwide</div>
         </div>
         <div class="winning-section" id="millionaire-winning-section">
             <div class="winning-header"><div class="winning-title"><span class="winning-dot"></span>Latest Winning Numbers</div><span class="winning-date" id="millionaire-winning-date"></span></div>
@@ -1305,14 +1642,26 @@
                 Generate My Numbers
             </button>
         </div>
-        <div class="results-area" id="millionaire-results"><div class="empty-state"><div class="empty-icon">💎</div>Hit Generate to get your PickStar numbers</div></div>
+        <div class="results-area" id="millionaire-results">
+            <div class="ball-legend">
+                <div class="ball-legend-item"><div class="legend-dot legend-dot-hot"></div>🔥 Hot</div>
+                <div class="ball-legend-item"><div class="legend-dot legend-dot-cold"></div>🧊 Cold</div>
+                <div class="ball-legend-item"><div class="legend-dot legend-dot-norm"></div>Normal</div>
+            </div>
+            <div class="empty-state"><div class="empty-icon">💎</div>Hit Generate to get your PickStar numbers</div>
+        </div>
     </div>
 
     <!-- QUICK DRAW -->
     <div id="quickdraw-card" class="game-card">
         <div class="card-header">
-            <div><div class="game-icon">🎰</div><h2>Quick Draw</h2><div class="card-header-sub">10 numbers drawn from 1–80 &nbsp;·&nbsp; 🗽 NY Only</div></div>
-            <div class="card-draw-info"><div class="card-draw-label">Draw Schedule</div><div class="card-draw-days">Every 4 min</div><div class="card-draw-time">4:00 AM – 2:00 AM ET</div><div class="card-draw-next" id="quickdraw-next"></div></div>
+            <div class="card-header-top">
+                <div class="game-icon">🎰</div>
+                <div class="card-draw-info"><div class="card-draw-days">Every 4 min</div><div class="card-draw-time">@ 4:00 AM – 2:00 AM ET</div></div>
+            </div>
+            <h2>Quick Draw</h2>
+            <div class="card-rule">10 numbers drawn from 1–80</div>
+            <div class="card-region">🗽 NY Only</div>
         </div>
         <div class="winning-section" id="quickdraw-winning-section">
             <div class="winning-header"><div class="winning-title"><span class="winning-dot"></span>Latest Winning Numbers</div><span class="winning-date" id="quickdraw-winning-date"></span></div>
@@ -1332,14 +1681,26 @@
                 Generate My Numbers
             </button>
         </div>
-        <div class="results-area" id="quickdraw-results"><div class="empty-state"><div class="empty-icon">🎰</div>Hit Generate to get your PickStar numbers</div></div>
+        <div class="results-area" id="quickdraw-results">
+            <div class="ball-legend">
+                <div class="ball-legend-item"><div class="legend-dot legend-dot-hot"></div>🔥 Hot</div>
+                <div class="ball-legend-item"><div class="legend-dot legend-dot-cold"></div>🧊 Cold</div>
+                <div class="ball-legend-item"><div class="legend-dot legend-dot-norm"></div>Normal</div>
+            </div>
+            <div class="empty-state"><div class="empty-icon">🎰</div>Hit Generate to get your PickStar numbers</div>
+        </div>
     </div>
 
     <!-- TAKE 5 -->
     <div id="take5-card" class="game-card">
         <div class="card-header">
-            <div><div class="game-icon">🎯</div><h2>Take 5</h2><div class="card-header-sub">Pick 5 from 1–39 · No bonus ball &nbsp;·&nbsp; 🗽 NY Only</div></div>
-            <div class="card-draw-info"><div class="card-draw-label">Draw Days</div><div class="card-draw-days">Daily</div><div class="card-draw-time">2:30 PM &amp; 10:30 PM ET</div><div class="card-draw-next" id="take5-next"></div></div>
+            <div class="card-header-top">
+                <div class="game-icon">🎯</div>
+                <div class="card-draw-info"><div class="card-draw-days">Daily</div><div class="card-draw-time">@ 2:30 / 10:30 PM ET</div></div>
+            </div>
+            <h2>Take 5</h2>
+            <div class="card-rule">Pick 5 from 1–39 · No bonus ball</div>
+            <div class="card-region">🗽 NY Only</div>
         </div>
         <div class="winning-section" id="take5-winning-section">
             <div class="winning-header"><div class="winning-title"><span class="winning-dot"></span>Latest Winning Numbers</div><span class="winning-date" id="take5-winning-date"></span></div>
@@ -1359,14 +1720,26 @@
                 Generate My Numbers
             </button>
         </div>
-        <div class="results-area" id="take5-results"><div class="empty-state"><div class="empty-icon">🎯</div>Hit Generate to get your PickStar numbers</div></div>
+        <div class="results-area" id="take5-results">
+            <div class="ball-legend">
+                <div class="ball-legend-item"><div class="legend-dot legend-dot-hot"></div>🔥 Hot</div>
+                <div class="ball-legend-item"><div class="legend-dot legend-dot-cold"></div>🧊 Cold</div>
+                <div class="ball-legend-item"><div class="legend-dot legend-dot-norm"></div>Normal</div>
+            </div>
+            <div class="empty-state"><div class="empty-icon">🎯</div>Hit Generate to get your PickStar numbers</div>
+        </div>
     </div>
 
     <!-- PICK 10 -->
     <div id="pick10-card" class="game-card">
         <div class="card-header">
-            <div><div class="game-icon">🔟</div><h2>Pick 10</h2><div class="card-header-sub">10 numbers from 1–80 · No bonus ball &nbsp;·&nbsp; 🗽 NY Only</div></div>
-            <div class="card-draw-info"><div class="card-draw-label">Draw Days</div><div class="card-draw-days">Daily</div><div class="card-draw-time">2:30 PM &amp; 10:30 PM ET</div><div class="card-draw-next" id="pick10-next"></div></div>
+            <div class="card-header-top">
+                <div class="game-icon">🔟</div>
+                <div class="card-draw-info"><div class="card-draw-days">Daily</div><div class="card-draw-time">@ 2:30 / 10:30 PM ET</div></div>
+            </div>
+            <h2>Pick 10</h2>
+            <div class="card-rule">10 numbers from 1–80 · No bonus ball</div>
+            <div class="card-region">🗽 NY Only</div>
         </div>
         <div class="winning-section" id="pick10-winning-section">
             <div class="winning-header"><div class="winning-title"><span class="winning-dot"></span>Latest Winning Numbers</div><span class="winning-date" id="pick10-winning-date"></span></div>
@@ -1386,14 +1759,26 @@
                 Generate My Numbers
             </button>
         </div>
-        <div class="results-area" id="pick10-results"><div class="empty-state"><div class="empty-icon">🔟</div>Hit Generate to get your PickStar numbers</div></div>
+        <div class="results-area" id="pick10-results">
+            <div class="ball-legend">
+                <div class="ball-legend-item"><div class="legend-dot legend-dot-hot"></div>🔥 Hot</div>
+                <div class="ball-legend-item"><div class="legend-dot legend-dot-cold"></div>🧊 Cold</div>
+                <div class="ball-legend-item"><div class="legend-dot legend-dot-norm"></div>Normal</div>
+            </div>
+            <div class="empty-state"><div class="empty-icon">🔟</div>Hit Generate to get your PickStar numbers</div>
+        </div>
     </div>
 
     <!-- WIN 4 -->
     <div id="win4-card" class="game-card">
         <div class="card-header">
-            <div><div class="game-icon">4️⃣</div><h2>Win 4</h2><div class="card-header-sub">4 digits from 0–9 · Repeats allowed &nbsp;·&nbsp; 🗽 NY Only</div></div>
-            <div class="card-draw-info"><div class="card-draw-label">Draw Days</div><div class="card-draw-days">Daily</div><div class="card-draw-time">2:30 PM &amp; 10:30 PM ET</div><div class="card-draw-next" id="win4-next"></div></div>
+            <div class="card-header-top">
+                <div class="game-icon">4️⃣</div>
+                <div class="card-draw-info"><div class="card-draw-days">Daily</div><div class="card-draw-time">@ 2:30 / 10:30 PM ET</div></div>
+            </div>
+            <h2>Win 4</h2>
+            <div class="card-rule">4 digits from 0–9 · Repeats allowed</div>
+            <div class="card-region">🗽 NY Only</div>
         </div>
         <div class="winning-section" id="win4-winning-section">
             <div class="winning-header"><div class="winning-title"><span class="winning-dot"></span>Latest Winning Numbers</div><span class="winning-date" id="win4-winning-date"></span></div>
@@ -1413,14 +1798,26 @@
                 Generate My Numbers
             </button>
         </div>
-        <div class="results-area" id="win4-results"><div class="empty-state"><div class="empty-icon">4️⃣</div>Hit Generate to get your PickStar numbers</div></div>
+        <div class="results-area" id="win4-results">
+            <div class="ball-legend">
+                <div class="ball-legend-item"><div class="legend-dot legend-dot-hot"></div>🔥 Hot</div>
+                <div class="ball-legend-item"><div class="legend-dot legend-dot-cold"></div>🧊 Cold</div>
+                <div class="ball-legend-item"><div class="legend-dot legend-dot-norm"></div>Normal</div>
+            </div>
+            <div class="empty-state"><div class="empty-icon">4️⃣</div>Hit Generate to get your PickStar numbers</div>
+        </div>
     </div>
 
     <!-- NUMBERS -->
     <div id="numbers-card" class="game-card">
         <div class="card-header">
-            <div><div class="game-icon">🔢</div><h2>Numbers</h2><div class="card-header-sub">3 digits from 0–9 · Repeats allowed &nbsp;·&nbsp; 🗽 NY Only</div></div>
-            <div class="card-draw-info"><div class="card-draw-label">Draw Days</div><div class="card-draw-days">Daily</div><div class="card-draw-time">2:30 PM &amp; 10:30 PM ET</div><div class="card-draw-next" id="numbers-next"></div></div>
+            <div class="card-header-top">
+                <div class="game-icon">🔢</div>
+                <div class="card-draw-info"><div class="card-draw-days">Daily</div><div class="card-draw-time">@ 2:30 / 10:30 PM ET</div></div>
+            </div>
+            <h2>Numbers</h2>
+            <div class="card-rule">3 digits from 0–9 · Repeats allowed</div>
+            <div class="card-region">🗽 NY Only</div>
         </div>
         <div class="winning-section" id="numbers-winning-section">
             <div class="winning-header"><div class="winning-title"><span class="winning-dot"></span>Latest Winning Numbers</div><span class="winning-date" id="numbers-winning-date"></span></div>
@@ -1440,7 +1837,14 @@
                 Generate My Numbers
             </button>
         </div>
-        <div class="results-area" id="numbers-results"><div class="empty-state"><div class="empty-icon">🔢</div>Hit Generate to get your PickStar numbers</div></div>
+        <div class="results-area" id="numbers-results">
+            <div class="ball-legend">
+                <div class="ball-legend-item"><div class="legend-dot legend-dot-hot"></div>🔥 Hot</div>
+                <div class="ball-legend-item"><div class="legend-dot legend-dot-cold"></div>🧊 Cold</div>
+                <div class="ball-legend-item"><div class="legend-dot legend-dot-norm"></div>Normal</div>
+            </div>
+            <div class="empty-state"><div class="empty-icon">🔢</div>Hit Generate to get your PickStar numbers</div>
+        </div>
     </div>
 
     <div class="legal-footer" style="padding:20px 0 0">
@@ -1471,6 +1875,7 @@
             🗑 Clear All
         </button>
     </div>
+
 
     <div id="saved-list"></div>
 
@@ -1656,7 +2061,7 @@ function getNextDraw(gameId) {
                 var hh = g.hour > 12 ? g.hour - 12 : (g.hour === 0 ? 12 : g.hour);
                 var ap = g.hour >= 12 ? 'PM' : 'AM';
                 var mm = g.min < 10 ? '0' + g.min : '' + g.min;
-                return 'Next: ' + label + ' @ ' + hh + ':' + mm + ' ' + ap + ' ET';
+                return 'Next: ' + label + '\n@ ' + hh + ':' + mm + ' ' + ap + ' ET';
             }
         }
     }
@@ -1909,6 +2314,33 @@ function makeOfficialSiteHTML(url, label) {
          + 'View ' + label + ' at nylottery.ny.gov'
          + '<span style="font-size:11px;opacity:0.6">&#x2197;</span>'
          + '</a>';
+}
+
+/* ══ 핫/콜드 번호 캐시 (생성 구슬 색상용) ══ */
+var hotNumCache  = {};  /* { gameId: [n1,n2,...] } */
+var coldNumCache = {};  /* { gameId: [n1,n2,...] } */
+
+function storeHotColdCache(gameId, freq, topN) {
+    var arr = [];
+    var keys = Object.keys(freq);
+    for (var i = 0; i < keys.length; i++) {
+        arr.push({ n: parseInt(keys[i], 10), count: freq[keys[i]] });
+    }
+    /* 핫: 빈도 높은 순 */
+    arr.sort(function(a, b) { return b.count - a.count || a.n - b.n; });
+    hotNumCache[gameId]  = arr.slice(0, topN).map(function(x){ return x.n; });
+    /* 콜드: 빈도 낮은 순 */
+    arr.sort(function(a, b) { return a.count - b.count || a.n - b.n; });
+    coldNumCache[gameId] = arr.slice(0, topN).map(function(x){ return x.n; });
+}
+
+function getBallType(gameId, number) {
+    var hot  = hotNumCache[gameId]  || [];
+    var cold = coldNumCache[gameId] || [];
+    var num = parseInt(number, 10);
+    if (hot.indexOf(num)  !== -1) return 'hot';
+    if (cold.indexOf(num) !== -1) return 'cold';
+    return 'normal';
 }
 
 /* ══ [Phase 1.5] winningCache with TTL (6-hour expiration) ══ */
@@ -2207,6 +2639,8 @@ function fetchHotNumbers(gameId) {
             var cold = getColdNumbers(freq, cfg.top);
             renderHotBalls(gameId, top, cfg.isDigit);
             renderColdBalls(gameId, cold, cfg.isDigit);
+            /* 생성 구슬 색상용 캐시 저장 */
+            storeHotColdCache(gameId, freq, cfg.top);
         })
         .catch(function() {
             if (container)     container.innerHTML     = '<div class="winning-error">Could not load</div>';
@@ -2366,9 +2800,17 @@ function displayResults(gameId, sets, bonusClass) {
                 row.appendChild(sep); addedSep = true;
             }
             var ball = document.createElement('div');
-            if (item.bonus)      ball.className = 'ball ' + bClass;
-            else if (item.zero)  ball.className = 'ball ball-zero';
-            else                 ball.className = 'ball ball-main';
+            if (item.bonus) {
+                ball.className = 'ball ' + bClass;
+            } else if (item.zero) {
+                ball.className = 'ball ball-zero';
+            } else {
+                /* 핫/콜드 색상 표시 */
+                var ballType = getBallType(gameId, item.number);
+                if (ballType === 'hot')       ball.className = 'ball ball-main ball-hot-tint';
+                else if (ballType === 'cold') ball.className = 'ball ball-main ball-cold-tint';
+                else                          ball.className = 'ball ball-main';
+            }
             ball.textContent = item.number;
             row.appendChild(ball);
         }
@@ -2740,9 +3182,9 @@ function renderSavedScreen() {
         meta.appendChild(gameTag);
         meta.appendChild(dateSpan);
         var delBtn = document.createElement('button');
-        delBtn.className = 'delete-btn';
-        delBtn.innerHTML = '✕';
-        delBtn.title = 'Delete';
+        delBtn.className = 'delete-btn'; delBtn.setAttribute('aria-label', 'Delete saved numbers');
+        delBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>';
+        delBtn.title = 'Delete this set';
         (function(eid){ delBtn.addEventListener('click', function(){ deleteSaved(eid); }); })(entry.id);
         header.appendChild(meta);
         header.appendChild(delBtn);
@@ -2955,6 +3397,171 @@ window.addEventListener('load', function() {
     if (confirmOverlay) {
         confirmOverlay.addEventListener('click', function(e) {
             if (e.target === confirmOverlay) confirmOverlay.classList.remove('visible');
+        });
+    }
+
+
+    /* ══ QUICK GENERATE ══ */
+    var _quickGenResults = null;
+
+    function quickGenerateAll() {
+        var results = [];
+        var GAME_CONFIGS = [
+            { id:'powerball',   label:'Powerball',           fn: function() {
+                var m = getRandomNumbers(1,69,5); var b = getRandomNumber(1,26);
+                var set = []; for(var i=0;i<m.length;i++) set.push({number:m[i],bonus:false});
+                set.push({number:b,bonus:true}); return set; }, bonusClass:'ball-bonus' },
+            { id:'mega',        label:'Mega Millions',       fn: function() {
+                var m = getRandomNumbers(1,70,5); var b = getRandomNumber(1,25);
+                var set = []; for(var i=0;i<m.length;i++) set.push({number:m[i],bonus:false});
+                set.push({number:b,bonus:true}); return set; }, bonusClass:'ball-bonus' },
+            { id:'lotto',       label:'NY Lotto',            fn: function() {
+                var m = getRandomNumbers(1,59,6); var b = getRandomNumber(1,59);
+                var set = []; for(var i=0;i<m.length;i++) set.push({number:m[i],bonus:false});
+                set.push({number:b,bonus:true}); return set; }, bonusClass:'ball-bonus' },
+            { id:'millionaire', label:'Millionaire for Life',fn: function() {
+                var m = getRandomNumbers(1,58,5); var b = getRandomNumber(1,5);
+                var set = []; for(var i=0;i<m.length;i++) set.push({number:m[i],bonus:false});
+                set.push({number:b,bonus:true}); return set; }, bonusClass:'ball-bonus' },
+            { id:'quickdraw',   label:'Quick Draw',          fn: function() {
+                var m = getRandomNumbers(1,80,10);
+                var set = []; for(var i=0;i<m.length;i++) set.push({number:m[i],bonus:false});
+                return set; }, bonusClass:'' },
+            { id:'take5',       label:'Take 5',              fn: function() {
+                var m = getRandomNumbers(1,39,5);
+                var set = []; for(var i=0;i<m.length;i++) set.push({number:m[i],bonus:false});
+                return set; }, bonusClass:'' },
+            { id:'pick10',      label:'Pick 10',             fn: function() {
+                var m = getRandomNumbers(1,80,10);
+                var set = []; for(var i=0;i<m.length;i++) set.push({number:m[i],bonus:false});
+                return set; }, bonusClass:'' },
+            { id:'win4',        label:'Win 4',               fn: function() {
+                var set = []; for(var k=0;k<4;k++) set.push({number:getRandomNumber(0,9),bonus:false,zero:true});
+                return set; }, bonusClass:'' },
+            { id:'numbers',     label:'Numbers',             fn: function() {
+                var set = []; for(var k=0;k<3;k++) set.push({number:getRandomNumber(0,9),bonus:false,zero:true});
+                return set; }, bonusClass:'' },
+        ];
+        for (var i = 0; i < GAME_CONFIGS.length; i++) {
+            var cfg = GAME_CONFIGS[i];
+            results.push({ id: cfg.id, label: cfg.label, set: cfg.fn(), bonusClass: cfg.bonusClass });
+        }
+        return results;
+    }
+
+    function buildQGBalls(set, bonusClass, gameId) {
+        var row = document.createElement('div');
+        row.className = 'qg-balls-row';
+        var addedSep = false;
+        for (var i = 0; i < set.length; i++) {
+            var item = set[i];
+            if (item.bonus && !addedSep) {
+                var sep = document.createElement('div');
+                sep.className = 'ball-sep'; sep.textContent = '+';
+                row.appendChild(sep); addedSep = true;
+            }
+            var ball = document.createElement('div');
+            ball.style.cssText = 'width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;flex:none;flex-shrink:0;';
+            if (item.bonus) {
+                ball.style.background = 'linear-gradient(145deg,#78350f,#b45309)';
+                ball.style.color = '#fde68a';
+                ball.style.border = '1px solid rgba(212,168,67,0.4)';
+            } else if (item.zero) {
+                ball.style.background = 'linear-gradient(145deg,#1f2937,#374151)';
+                ball.style.color = '#d1d5db';
+                ball.style.border = '1px solid rgba(255,255,255,0.12)';
+            } else {
+                var bType = getBallType(gameId, item.number);
+                if (bType === 'hot') {
+                    ball.style.background = 'linear-gradient(145deg,#7f1d1d,#b91c1c)';
+                    ball.style.color = '#fca5a5';
+                    ball.style.border = '1px solid rgba(239,68,68,0.4)';
+                } else if (bType === 'cold') {
+                    ball.style.background = 'linear-gradient(145deg,#1e3a5f,#1d4ed8)';
+                    ball.style.color = '#bfdbfe';
+                    ball.style.border = '1px solid rgba(96,165,250,0.45)';
+                } else {
+                    ball.style.background = 'linear-gradient(145deg,#1f2937,#374151)';
+                    ball.style.color = '#d1d5db';
+                    ball.style.border = '1px solid rgba(255,255,255,0.12)';
+                }
+            }
+            ball.textContent = item.number;
+            row.appendChild(ball);
+        }
+        return row;
+    }
+
+    function openQuickGenModal() {
+        var body = document.getElementById('quick-gen-modal-body');
+        var overlay = document.getElementById('quick-gen-modal-overlay');
+        if (!body || !overlay || !_quickGenResults) return;
+        body.innerHTML = '';
+        for (var i = 0; i < _quickGenResults.length; i++) {
+            var g = _quickGenResults[i];
+            var row = document.createElement('div');
+            row.className = 'qg-game-row';
+            var top = document.createElement('div');
+            top.className = 'qg-game-row-top';
+            var name = document.createElement('span');
+            name.className = 'qg-game-name';
+            name.textContent = g.label;
+            var saveBtn = document.createElement('button');
+            saveBtn.className = 'qg-save-btn';
+            saveBtn.innerHTML = '&#11088; Save';
+            (function(gId, gSet, btn) {
+                btn.addEventListener('click', function() {
+                    saveNumbers(gId, gSet);
+                    btn.className = 'qg-save-btn saved';
+                    btn.innerHTML = '&#9989; Saved!';
+                    showToast('⭐ ' + GAME_LABELS[gId] + ' saved!');
+                });
+            })(g.id, g.set, saveBtn);
+            top.appendChild(name);
+            top.appendChild(saveBtn);
+            var balls = buildQGBalls(g.set, g.bonusClass, g.id);
+            row.appendChild(top);
+            row.appendChild(balls);
+            body.appendChild(row);
+        }
+        overlay.classList.add('visible');
+        if (navigator && navigator.vibrate) { navigator.vibrate(30); }
+    }
+
+    function saveFromQuickGen(gameId, set) {
+        saveNumbers(gameId, set);
+    }
+
+    /* 버튼 + 카드 초기화 */
+    var qgBtn      = document.getElementById('quick-gen-btn');
+    var qgCard     = document.getElementById('quick-gen-card');
+    var qgViewBtn  = document.getElementById('quick-gen-view-btn');
+    var qgCardTime = document.getElementById('quick-gen-card-time');
+    var qgOverlay  = document.getElementById('quick-gen-modal-overlay');
+    var qgClose    = document.getElementById('quick-gen-modal-close');
+
+    if (qgBtn) {
+        qgBtn.addEventListener('click', function() {
+            _quickGenResults = quickGenerateAll();
+            /* 카드 표시 */
+            var now = new Date();
+            if (qgCardTime) qgCardTime.textContent = formatTime12(now);
+            if (qgCard) qgCard.classList.add('visible');
+            showToast('⚡ All 9 games generated!');
+            if (navigator && navigator.vibrate) { navigator.vibrate(30); }
+        });
+    }
+    if (qgViewBtn) {
+        qgViewBtn.addEventListener('click', function() { openQuickGenModal(); });
+    }
+    if (qgClose) {
+        qgClose.addEventListener('click', function() {
+            if (qgOverlay) qgOverlay.classList.remove('visible');
+        });
+    }
+    if (qgOverlay) {
+        qgOverlay.addEventListener('click', function(e) {
+            if (e.target === qgOverlay) qgOverlay.classList.remove('visible');
         });
     }
 
