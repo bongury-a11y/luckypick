@@ -1245,6 +1245,10 @@
         }
         .ios-install-dismiss:hover { color: var(--text); }
     </style>
+
+    <!-- Firebase SDK (compat — ES5 호환) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
@@ -2012,6 +2016,72 @@
 </div>
 
 <script>
+/* ══ Firebase 초기화 ══ */
+var _firebaseApp = null;
+var _firestore   = null;
+
+(function() {
+    var firebaseConfig = {
+        apiKey:            "AIzaSyDngpv_LRNyczrv1nJi9DO7dcjc4IFwXhg",
+        authDomain:        "pickstar-app.firebaseapp.com",
+        projectId:         "pickstar-app",
+        storageBucket:     "pickstar-app.firebasestorage.app",
+        messagingSenderId: "800244730497",
+        appId:             "1:800244730497:web:2a20b3a8af3a1a05871b80"
+    };
+    try {
+        _firebaseApp = firebase.initializeApp(firebaseConfig);
+        _firestore   = firebase.firestore();
+        console.log('[Firebase] 초기화 완료');
+    } catch(e) {
+        console.log('[Firebase] 초기화 실패 — API fallback 사용:', e.message);
+    }
+})();
+
+/* ══ Firestore 읽기 함수 ══
+   우선순위:
+   1. localStorage 캐시 (가장 빠름)
+   2. Firestore (빠름)
+   3. data.ny.gov 직접 API (fallback)
+══ */
+function fetchFromFirestore(collection, gameId, callback) {
+    if (!_firestore) { callback(null); return; }
+    try {
+        _firestore.collection(collection).doc(gameId).get()
+            .then(function(doc) {
+                if (doc.exists) {
+                    console.log('[Firebase] Firestore HIT:', collection, gameId);
+                    callback(doc.data());
+                } else {
+                    console.log('[Firebase] Firestore MISS:', collection, gameId);
+                    callback(null);
+                }
+            })
+            .catch(function(e) {
+                console.log('[Firebase] Firestore 오류:', e.message);
+                callback(null);
+            });
+    } catch(e) {
+        console.log('[Firebase] fetchFromFirestore 예외:', e.message);
+        callback(null);
+    }
+}
+
+/* Firestore에 데이터 저장 (Cloud Functions 대신 임시로 앱에서 저장) */
+function saveToFirestore(collection, gameId, data) {
+    if (!_firestore) return;
+    try {
+        data.updatedAt = new Date().toISOString();
+        _firestore.collection(collection).doc(gameId).set(data)
+            .then(function() {
+                console.log('[Firebase] Firestore SAVE:', collection, gameId);
+            })
+            .catch(function(e) {
+                console.log('[Firebase] Firestore 저장 오류:', e.message);
+            });
+    } catch(e) {}
+}
+
 /* ══ [Phase 1.1] ET TIME ZONE HELPER ══
    Always compute Eastern Time regardless of user's device timezone.
    Handles both EST (UTC-5) and EDT (UTC-4) automatically via DST detection. */
@@ -2376,41 +2446,65 @@ function fetchWinningNumbers(gameId) {
         return;
     }
 
-    /* [캐시] 오늘 데이터 있으면 API 호출 없이 즉시 사용 */
+    /* 우선순위 1: localStorage 캐시 */
     var cached = loadDailyCache(gameId, 'winning');
     if (cached && cached.balls) {
         if (dateEl) dateEl.textContent = cached.date || '';
         renderWinningBalls(gameId, cached.balls, cached.bonusClass);
         cacheWinning(gameId, cached.balls);
-        console.log('[Cache] winning 캐시 HIT:', gameId);
+        console.log('[Cache] winning localStorage HIT:', gameId);
         return;
     }
 
     if (ballsEl) ballsEl.innerHTML = '<div class="winning-loading"><span class="spin"></span>Loading...</div>';
 
-    fetch(cfg.url)
-        .then(function(resp) { return resp.json(); })
-        .then(function(data) {
-            if (!data || data.length === 0) {
-                if (ballsEl) ballsEl.innerHTML = '<div class="winning-error">No data available</div>';
-                return;
-            }
-            var parsed = cfg.parse(data[0]);
-            var dateStr = formatDrawDate(parsed.date);
+    /* 우선순위 2: Firestore */
+    fetchFromFirestore('lottery', gameId, function(fsData) {
+        if (fsData && fsData.balls && fsData.balls.length > 0) {
+            var dateStr = fsData.date || '';
             if (dateEl) dateEl.textContent = dateStr;
-            renderWinningBalls(gameId, parsed.balls, parsed.bonusClass);
-            cacheWinning(gameId, parsed.balls);
-            /* [캐시] localStorage에 오늘 날짜로 저장 */
+            renderWinningBalls(gameId, fsData.balls, fsData.bonusClass || '');
+            cacheWinning(gameId, fsData.balls);
             saveDailyCache(gameId, 'winning', {
-                balls: parsed.balls,
-                bonusClass: parsed.bonusClass,
+                balls: fsData.balls,
+                bonusClass: fsData.bonusClass || '',
                 date: dateStr
             });
-            console.log('[Cache] winning 캐시 SAVE:', gameId);
-        })
-        .catch(function() {
-            if (ballsEl) ballsEl.innerHTML = '<div class="winning-error">Could not load — check nylottery.ny.gov</div>';
-        });
+            console.log('[Firebase] winning Firestore HIT:', gameId);
+            return;
+        }
+
+        /* 우선순위 3: data.ny.gov 직접 API (fallback) */
+        fetch(cfg.url)
+            .then(function(resp) { return resp.json(); })
+            .then(function(data) {
+                if (!data || data.length === 0) {
+                    if (ballsEl) ballsEl.innerHTML = '<div class="winning-error">No data available</div>';
+                    return;
+                }
+                var parsed = cfg.parse(data[0]);
+                var dateStr = formatDrawDate(parsed.date);
+                if (dateEl) dateEl.textContent = dateStr;
+                renderWinningBalls(gameId, parsed.balls, parsed.bonusClass);
+                cacheWinning(gameId, parsed.balls);
+                /* localStorage 저장 */
+                saveDailyCache(gameId, 'winning', {
+                    balls: parsed.balls,
+                    bonusClass: parsed.bonusClass,
+                    date: dateStr
+                });
+                /* Firestore 저장 (다음 사용자를 위해) */
+                saveToFirestore('lottery', gameId, {
+                    balls: parsed.balls,
+                    bonusClass: parsed.bonusClass,
+                    date: dateStr
+                });
+                console.log('[API] winning API fallback SAVE:', gameId);
+            })
+            .catch(function() {
+                if (ballsEl) ballsEl.innerHTML = '<div class="winning-error">Could not load — check nylottery.ny.gov</div>';
+            });
+    });
 }
 
 var fetchedGames = {};
@@ -2634,26 +2728,38 @@ function fetchHotNumbers(gameId) {
         return;
     }
 
-    /* [캐시] 오늘 핫/콜드 데이터 있으면 즉시 사용 */
+    /* 우선순위 1: localStorage 캐시 */
     var cachedHot = loadDailyCache(gameId, 'hot');
     if (cachedHot && cachedHot.top && cachedHot.cold) {
         renderHotBalls(gameId, cachedHot.top, cfg.isDigit);
         renderColdBalls(gameId, cachedHot.cold, cfg.isDigit);
-        storeHotColdCache(gameId, cachedHot.freq || {}, cfg.top);
-        /* freq 없으면 배열에서 재구성 */
         if (!cachedHot.freq) {
-            var hNums = cachedHot.top.map(function(x){ return x.n; });
-            var cNums = cachedHot.cold.map(function(x){ return x.n; });
-            hotNumCache[gameId]  = hNums;
-            coldNumCache[gameId] = cNums;
+            hotNumCache[gameId]  = cachedHot.top.map(function(x){ return x.n; });
+            coldNumCache[gameId] = cachedHot.cold.map(function(x){ return x.n; });
+        } else {
+            storeHotColdCache(gameId, cachedHot.freq, cfg.top);
         }
-        console.log('[Cache] hot 캐시 HIT:', gameId);
+        console.log('[Cache] hot localStorage HIT:', gameId);
         return;
     }
 
     if (container)     container.innerHTML     = '<div class="winning-loading"><span class="spin"></span>Loading...</div>';
     if (coldContainer) coldContainer.innerHTML = '<div class="winning-loading"><span class="spin"></span>Loading...</div>';
-    fetch(cfg.url)
+
+    /* 우선순위 2: Firestore */
+    fetchFromFirestore('hotcold', gameId, function(fsData) {
+        if (fsData && fsData.top && fsData.cold) {
+            renderHotBalls(gameId, fsData.top, cfg.isDigit);
+            renderColdBalls(gameId, fsData.cold, cfg.isDigit);
+            hotNumCache[gameId]  = fsData.top.map(function(x){ return x.n; });
+            coldNumCache[gameId] = fsData.cold.map(function(x){ return x.n; });
+            saveDailyCache(gameId, 'hot', { top: fsData.top, cold: fsData.cold });
+            console.log('[Firebase] hot Firestore HIT:', gameId);
+            return;
+        }
+
+        /* 우선순위 3: data.ny.gov 직접 API (fallback) */
+        fetch(cfg.url)
         .then(function(resp) { return resp.json(); })
         .then(function(data) {
             if (!data || data.length === 0) {
@@ -2676,14 +2782,17 @@ function fetchHotNumbers(gameId) {
             renderColdBalls(gameId, cold, cfg.isDigit);
             /* 생성 구슬 색상용 캐시 저장 */
             storeHotColdCache(gameId, freq, cfg.top);
-            /* [캐시] localStorage에 오늘 날짜로 저장 */
+            /* localStorage 저장 */
             saveDailyCache(gameId, 'hot', { top: top, cold: cold });
-            console.log('[Cache] hot 캐시 SAVE:', gameId);
+            /* Firestore 저장 (다음 사용자를 위해) */
+            saveToFirestore('hotcold', gameId, { top: top, cold: cold });
+            console.log('[API] hot API fallback SAVE:', gameId);
         })
         .catch(function() {
             if (container)     container.innerHTML     = '<div class="winning-error">Could not load</div>';
             if (coldContainer) coldContainer.innerHTML = '<div class="winning-error">Could not load</div>';
         });
+    }); /* Firestore callback 닫기 */
 }
 
 
