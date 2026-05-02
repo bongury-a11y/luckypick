@@ -2376,6 +2376,16 @@ function fetchWinningNumbers(gameId) {
         return;
     }
 
+    /* [캐시] 오늘 데이터 있으면 API 호출 없이 즉시 사용 */
+    var cached = loadDailyCache(gameId, 'winning');
+    if (cached && cached.balls) {
+        if (dateEl) dateEl.textContent = cached.date || '';
+        renderWinningBalls(gameId, cached.balls, cached.bonusClass);
+        cacheWinning(gameId, cached.balls);
+        console.log('[Cache] winning 캐시 HIT:', gameId);
+        return;
+    }
+
     if (ballsEl) ballsEl.innerHTML = '<div class="winning-loading"><span class="spin"></span>Loading...</div>';
 
     fetch(cfg.url)
@@ -2386,10 +2396,17 @@ function fetchWinningNumbers(gameId) {
                 return;
             }
             var parsed = cfg.parse(data[0]);
-            if (dateEl) dateEl.textContent = formatDrawDate(parsed.date);
+            var dateStr = formatDrawDate(parsed.date);
+            if (dateEl) dateEl.textContent = dateStr;
             renderWinningBalls(gameId, parsed.balls, parsed.bonusClass);
-            /* [Phase 1.5] cache with TTL */
             cacheWinning(gameId, parsed.balls);
+            /* [캐시] localStorage에 오늘 날짜로 저장 */
+            saveDailyCache(gameId, 'winning', {
+                balls: parsed.balls,
+                bonusClass: parsed.bonusClass,
+                date: dateStr
+            });
+            console.log('[Cache] winning 캐시 SAVE:', gameId);
         })
         .catch(function() {
             if (ballsEl) ballsEl.innerHTML = '<div class="winning-error">Could not load — check nylottery.ny.gov</div>';
@@ -2616,6 +2633,24 @@ function fetchHotNumbers(gameId) {
         if (coldContainer) coldContainer.innerHTML = makeOfficialSiteHTML(cfg.officialUrl, cfg.officialLabel);
         return;
     }
+
+    /* [캐시] 오늘 핫/콜드 데이터 있으면 즉시 사용 */
+    var cachedHot = loadDailyCache(gameId, 'hot');
+    if (cachedHot && cachedHot.top && cachedHot.cold) {
+        renderHotBalls(gameId, cachedHot.top, cfg.isDigit);
+        renderColdBalls(gameId, cachedHot.cold, cfg.isDigit);
+        storeHotColdCache(gameId, cachedHot.freq || {}, cfg.top);
+        /* freq 없으면 배열에서 재구성 */
+        if (!cachedHot.freq) {
+            var hNums = cachedHot.top.map(function(x){ return x.n; });
+            var cNums = cachedHot.cold.map(function(x){ return x.n; });
+            hotNumCache[gameId]  = hNums;
+            coldNumCache[gameId] = cNums;
+        }
+        console.log('[Cache] hot 캐시 HIT:', gameId);
+        return;
+    }
+
     if (container)     container.innerHTML     = '<div class="winning-loading"><span class="spin"></span>Loading...</div>';
     if (coldContainer) coldContainer.innerHTML = '<div class="winning-loading"><span class="spin"></span>Loading...</div>';
     fetch(cfg.url)
@@ -2641,11 +2676,41 @@ function fetchHotNumbers(gameId) {
             renderColdBalls(gameId, cold, cfg.isDigit);
             /* 생성 구슬 색상용 캐시 저장 */
             storeHotColdCache(gameId, freq, cfg.top);
+            /* [캐시] localStorage에 오늘 날짜로 저장 */
+            saveDailyCache(gameId, 'hot', { top: top, cold: cold });
+            console.log('[Cache] hot 캐시 SAVE:', gameId);
         })
         .catch(function() {
             if (container)     container.innerHTML     = '<div class="winning-error">Could not load</div>';
             if (coldContainer) coldContainer.innerHTML = '<div class="winning-error">Could not load</div>';
         });
+}
+
+
+/* 백그라운드 핫/콜드 프리로드 — DOM 업데이트 없이 캐시만 저장 */
+function fetchHotNumbersBackground(gameId) {
+    var cfg = HOT_CFG[gameId];
+    if (!cfg || cfg.useOfficialSite) return;
+    if (loadDailyCache(gameId, 'hot')) return; /* 이미 캐시 있으면 스킵 */
+    fetch(cfg.url)
+        .then(function(resp) { return resp.json(); })
+        .then(function(data) {
+            if (!data || data.length === 0) return;
+            var freq = {};
+            for (var i = 0; i < data.length; i++) {
+                var nums = cfg.extract(data[i]);
+                for (var j = 0; j < nums.length; j++) {
+                    var key = nums[j];
+                    freq[key] = (freq[key] || 0) + 1;
+                }
+            }
+            var top  = getTopNumbers(freq, cfg.top);
+            var cold = getColdNumbers(freq, cfg.top);
+            storeHotColdCache(gameId, freq, cfg.top);
+            saveDailyCache(gameId, 'hot', { top: top, cold: cold });
+            console.log('[Cache] 백그라운드 hot 저장:', gameId);
+        })
+        .catch(function(){});
 }
 
 /* ══ [Phase 1.4] NAVIGATION with History API (Android back button fix) ══ */
@@ -3051,6 +3116,54 @@ function safeRemoveItem(key) {
     }
 }
 
+
+/* ══ 날짜 기반 localStorage 캐시 ══
+   ET 날짜 기준으로 하루 1회만 API 호출.
+   키 형식: ps_cache_YYYY-MM-DD_gameId_type
+   type: 'winning' | 'hot'
+   앱 시작 시 어제 캐시 자동 삭제.
+══ */
+function getTodayKeyET() {
+    var et = getETTime();
+    var y = et.getFullYear();
+    var m = et.getMonth() + 1;
+    var d = et.getDate();
+    return y + '-' + (m < 10 ? '0' : '') + m + '-' + (d < 10 ? '0' : '') + d;
+}
+
+function getDailyCacheKey(gameId, type) {
+    return 'ps_cache_' + getTodayKeyET() + '_' + gameId + '_' + type;
+}
+
+function saveDailyCache(gameId, type, data) {
+    try {
+        safeSetItem(getDailyCacheKey(gameId, type), JSON.stringify(data));
+        return true;
+    } catch(e) { return false; }
+}
+
+function loadDailyCache(gameId, type) {
+    try {
+        var raw = safeGetItem(getDailyCacheKey(gameId, type));
+        return raw ? JSON.parse(raw) : null;
+    } catch(e) { return null; }
+}
+
+function clearOldDailyCache() {
+    var today = getTodayKeyET();
+    try {
+        var keys = [];
+        for (var i = 0; i < localStorage.length; i++) {
+            var k = localStorage.key(i);
+            if (k && k.indexOf('ps_cache_') === 0 && k.indexOf(today) === -1) {
+                keys.push(k);
+            }
+        }
+        for (var j = 0; j < keys.length; j++) { safeRemoveItem(keys[j]); }
+        if (keys.length > 0) console.log('[Cache] 구 캐시 삭제:', keys.length + '개');
+    } catch(e) {}
+}
+
 function getSavedNumbers() {
     try {
         var raw = safeGetItem('luckyPick_saved');
@@ -3368,11 +3481,37 @@ window.addEventListener('load', function() {
         });
     }
 
+    /* [캐시] 구 날짜 캐시 삭제 */
+    clearOldDailyCache();
+
     updateClock();
     updateNextDraws();
     updateSavedCountBadges();
     setInterval(updateClock, 1000);
     setInterval(updateNextDraws, 60000);
+
+    /* [캐시] 앱 시작 시 백그라운드 프리로드
+       — 9개 게임 데이터를 미리 가져와 캐시에 저장
+       — 사용자가 탭 클릭 시 즉시 표시 가능 */
+    setTimeout(function() {
+        var PRELOAD_GAMES = ['powerball','mega','lotto','millionaire','take5','pick10','win4','numbers','quickdraw'];
+        var idx = 0;
+        function preloadNext() {
+            if (idx >= PRELOAD_GAMES.length) {
+                console.log('[Cache] 프리로드 완료');
+                return;
+            }
+            var gId = PRELOAD_GAMES[idx++];
+            /* 이미 캐시 있으면 스킵 */
+            var wCached = loadDailyCache(gId, 'winning');
+            var hCached = loadDailyCache(gId, 'hot');
+            if (!wCached) fetchWinningNumbersForCompare(gId);
+            if (!hCached) fetchHotNumbersBackground(gId);
+            /* 1.5초 간격으로 순차 호출 (서버 부하 분산) */
+            setTimeout(preloadNext, 1500);
+        }
+        preloadNext();
+    }, 2000); /* 앱 UI 로드 후 2초 뒤 시작 */
 
     /* [Phase 1.3] Custom confirm modal wiring */
     var confirmOverlay = document.getElementById('confirm-overlay');
