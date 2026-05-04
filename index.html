@@ -2900,41 +2900,80 @@ for (var t = 0; t < tabButtons.length; t++) {
     tabButtons[t].addEventListener('click', function() { switchTab(this.getAttribute('data-game')); });
 }
 
-/* [Phase 1.4] Handle browser/Android back button via popstate */
+/* ══ [Fix] 뒤로가기 전략 — PWA 앱 종료 방지 + 모달 처리 ══
+   전략: sentinel history 유지
+   - 앱 시작 시 sentinel 2개 push
+   - popstate 시 모달 열려있으면 모달만 닫기
+   - home 도달 시 sentinel 재push → 앱 종료 방지
+   - Quick Generate 모달도 history 관리
+══ */
+function _hideAllScreens() {
+    var ids = ['game-screen','saved-screen','privacy-screen','terms-screen'];
+    for (var i = 0; i < ids.length; i++) {
+        document.getElementById(ids[i]).classList.remove('active');
+    }
+}
+
+function _isAnyModalOpen() {
+    var qgOverlay    = document.getElementById('quick-gen-modal-overlay');
+    var confirmOver  = document.getElementById('confirm-overlay');
+    var ageGate      = document.getElementById('age-gate-overlay');
+    if (qgOverlay    && qgOverlay.classList.contains('visible'))   return 'quick-gen';
+    if (confirmOver  && confirmOver.classList.contains('visible')) return 'confirm';
+    if (ageGate      && ageGate.classList.contains('visible'))     return 'age-gate';
+    return null;
+}
+
+function _closeTopModal(modalName) {
+    if (modalName === 'quick-gen') {
+        var el = document.getElementById('quick-gen-modal-overlay');
+        if (el) el.classList.remove('visible');
+    } else if (modalName === 'confirm') {
+        var el = document.getElementById('confirm-overlay');
+        if (el) el.classList.remove('visible');
+    }
+    /* age-gate는 뒤로가기로 닫지 않음 */
+    /* 모달 닫은 후 sentinel 재push */
+    window.history.pushState({ screen: 'modal-closed' }, '', window.location.pathname);
+}
+
 window.addEventListener('popstate', function(e) {
-    if (e.state && e.state.screen === 'game') {
-        /* going back to a game — just show game screen without pushing new state */
-        document.getElementById('home-screen').classList.remove('active');
-        document.getElementById('saved-screen').classList.remove('active');
+    /* 1. 모달 열려있으면 모달만 닫기 */
+    var openModal = _isAnyModalOpen();
+    if (openModal) {
+        _closeTopModal(openModal);
+        return;
+    }
+
+    var state = e.state;
+
+    /* 2. 각 화면별 처리 */
+    if (state && state.screen === 'game') {
+        _hideAllScreens();
         document.getElementById('game-screen').classList.add('active');
-        if (e.state.gameId) switchTab(e.state.gameId);
+        if (state.gameId) switchTab(state.gameId);
         window.scrollTo(0, 0);
-    } else if (e.state && e.state.screen === 'saved') {
-        document.getElementById('home-screen').classList.remove('active');
-        document.getElementById('game-screen').classList.remove('active');
+    } else if (state && state.screen === 'saved') {
+        _hideAllScreens();
         document.getElementById('saved-screen').classList.add('active');
         renderSavedScreen();
         window.scrollTo(0, 0);
-    } else if (e.state && e.state.screen === 'privacy') {
-        ['home-screen','game-screen','saved-screen','terms-screen'].forEach(function(id){
-            document.getElementById(id).classList.remove('active');
-        });
+    } else if (state && state.screen === 'privacy') {
+        _hideAllScreens();
         document.getElementById('privacy-screen').classList.add('active');
         window.scrollTo(0, 0);
-    } else if (e.state && e.state.screen === 'terms') {
-        ['home-screen','game-screen','saved-screen','privacy-screen'].forEach(function(id){
-            document.getElementById(id).classList.remove('active');
-        });
+    } else if (state && state.screen === 'terms') {
+        _hideAllScreens();
         document.getElementById('terms-screen').classList.add('active');
         window.scrollTo(0, 0);
     } else {
-        /* default: go to home */
-        document.getElementById('game-screen').classList.remove('active');
-        document.getElementById('saved-screen').classList.remove('active');
-        document.getElementById('privacy-screen').classList.remove('active');
-        document.getElementById('terms-screen').classList.remove('active');
+        /* 3. home 또는 sentinel 도달
+              → 홈 화면 유지 + sentinel 재push (앱 종료 방지) */
+        _hideAllScreens();
         document.getElementById('home-screen').classList.add('active');
         window.scrollTo(0, 0);
+        /* sentinel 재push — 다음 뒤로가기도 앱 종료 안 됨 */
+        window.history.pushState({ screen: 'home' }, '', window.location.pathname);
     }
 });
 
@@ -2976,13 +3015,12 @@ function displayResults(gameId, sets, bonusClass) {
             var ball = document.createElement('div');
             if (item.bonus) {
                 ball.className = 'ball ' + bClass;
-            } else if (item.zero) {
-                ball.className = 'ball ball-zero';
             } else {
-                /* 핫/콜드 색상 표시 */
+                /* zero(digit) 공도 핫/콜드 색상 체크 — Win4/Numbers 포함 */
                 var ballType = getBallType(gameId, item.number);
-                if (ballType === 'hot')       ball.className = 'ball ball-main ball-hot-tint';
-                else if (ballType === 'cold') ball.className = 'ball ball-main ball-cold-tint';
+                if (ballType === 'hot')       ball.className = 'ball ball-hot-tint';
+                else if (ballType === 'cold') ball.className = 'ball ball-cold-tint';
+                else if (item.zero)           ball.className = 'ball ball-zero';
                 else                          ball.className = 'ball ball-main';
             }
             ball.textContent = item.number;
@@ -3307,7 +3345,10 @@ function deleteSaved(id) {
 /* [Phase 1.3] clearAllSaved uses custom modal instead of window.confirm */
 function clearAllSaved() {
     var overlay = document.getElementById('confirm-overlay');
-    if (overlay) overlay.classList.add('visible');
+    if (overlay) {
+        overlay.classList.add('visible');
+        window.history.pushState({ screen: 'modal', modal: 'confirm' }, '', window.location.pathname);
+    }
 }
 
 function formatTime12(d) {
@@ -3498,8 +3539,11 @@ function fetchWinningNumbersForCompare(gameId) {
 
 /* ══ INIT ══ */
 window.addEventListener('load', function() {
-    /* [Phase 1.4] Set initial history state so back button works from first load */
-    window.history.replaceState({ screen: 'home' }, '', window.location.pathname);
+    /* [Fix] PWA 앱 종료 방지 sentinel history 초기화
+       sentinel 2개를 미리 push해서
+       뒤로가기를 2번 눌러도 앱이 닫히지 않음 */
+    window.history.replaceState({ screen: 'sentinel' }, '', window.location.pathname);
+    window.history.pushState({ screen: 'home' }, '', window.location.pathname);
 
     /* ══ PickStar: 별 반짝임 애니메이션 ══
        - 100개의 별을 JS로 동적 생성 (CSS keyframes 재사용)
@@ -3719,6 +3763,7 @@ window.addEventListener('load', function() {
                 ball.style.color = '#d1d5db';
                 ball.style.border = '1px solid rgba(255,255,255,0.12)';
             } else {
+                /* zero(digit) 공도 핫/콜드 체크 — Win4/Numbers 포함 */
                 var bType = getBallType(gameId, item.number);
                 if (bType === 'hot') {
                     ball.style.background = 'linear-gradient(145deg,#7f1d1d,#b91c1c)';
@@ -3728,6 +3773,10 @@ window.addEventListener('load', function() {
                     ball.style.background = 'linear-gradient(145deg,#1e3a5f,#1d4ed8)';
                     ball.style.color = '#bfdbfe';
                     ball.style.border = '1px solid rgba(96,165,250,0.45)';
+                } else if (item.zero) {
+                    ball.style.background = 'linear-gradient(145deg,#1f2937,#374151)';
+                    ball.style.color = '#d1d5db';
+                    ball.style.border = '1px solid rgba(255,255,255,0.12)';
                 } else {
                     ball.style.background = 'linear-gradient(145deg,#1f2937,#374151)';
                     ball.style.color = '#d1d5db';
@@ -3774,6 +3823,8 @@ window.addEventListener('load', function() {
         }
         overlay.classList.add('visible');
         if (navigator && navigator.vibrate) { navigator.vibrate(30); }
+        /* 모달 열릴 때 history에 추가 → 뒤로가기로 닫힘 */
+        window.history.pushState({ screen: 'modal', modal: 'quick-gen' }, '', window.location.pathname);
     }
 
     function saveFromQuickGen(gameId, set) {
